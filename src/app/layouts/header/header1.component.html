@@ -1,15 +1,27 @@
-<header class="header">
-  <div class="header-content">
-    <div class="logo">
-      <img src="/logo-bookhub.png" alt="Logo Bibliothèque" class="logo-icon">
-      <span class="logo-text">Bibliothèque Quartier Solidaire</span>
+<header class="shadow-sm bg-white sticky-top">
+  <nav class="navbar navbar-expand-lg navbar-light container py-3">
+    <div class="navbar-brand d-flex align-items-center">
+      <img src="/logo-bookhub.png" alt="Logo" class="me-3" style="width: 40px; height: 40px;">
+
+      <div class="d-flex flex-column">
+        <span class="fw-bold h5 mb-0 d-none d-sm-block">Bibliothèque Quartier Solidaire</span>
+        <span class="fw-bold h5 mb-0 d-block d-sm-none">BookHub</span>
+      </div>
     </div>
 
-    <nav class="nav">
-      <a routerLink="/dashboard" routerLinkActive="active">Tableau de bord</a>
-      <a routerLink="/catalogue" routerLinkActive="active">Catalogue</a>
-      <a routerLink="/mes-emprunts" routerLinkActive="active">Mes emprunts</a>
-      <button class="btn-deconnexion" (click)="logout()">Déconnexion</button>
-    </nav>
-  </div>
+    <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="navbar-nav ms-auto align-items-lg-center gap-2">
+        <a class="nav-link px-3" routerLink="/dashboard" routerLinkActive="active">Tableau de bord</a>
+        <a class="nav-link px-3" routerLink="/catalogue" routerLinkActive="active">Catalogue</a>
+        <a class="nav-link px-3" routerLink="/mes-emprunts" routerLinkActive="active">Mes emprunts</a>
+        <button class="btn btn-outline-danger ms-lg-3 mt-2 mt-lg-0 px-4 rounded-pill" (click)="logout()">
+          Déconnexion
+        </button>
+      </div>
+    </div>
+  </nav>
 </header>

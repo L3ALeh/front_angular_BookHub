@@ -1,68 +1,97 @@
-.header {
-  background-color: #FFFFFF;
+/* --- Style Global --- */
+header {
+  background-color: #ffffff;
   border-bottom: 1px solid #e0e0e0;
-  padding: 1rem 2rem;
-  width: 100%;
+  z-index: 1030;
 }
 
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* Container du header : gère l'espace à gauche et à droite du logo/boutons */
+.navbar.container {
+  padding-left: 2rem !important;  /* Ton espace à gauche souhaité */
+  padding-right: 2rem !important;
   max-width: 1400px;
-  margin: 0 auto;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-shrink: 0;
-}
-
-.logo-icon {
+/* --- Bloc Logo --- */
+.navbar-brand img {
+  margin-right: 1.25rem; /* Espace entre l'icône et le texte */
   width: 40px;
   height: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.1));
 }
 
-.logo-text {
+.navbar-brand:hover img {
+  transform: scale(1.1);
+}
+
+.navbar-brand span {
   font-size: 1.25rem;
   font-weight: 600;
   color: #333;
-  white-space: nowrap;
+  letter-spacing: -0.02em;
 }
 
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  margin-left: auto;
-}
-
-.nav a {
-  text-decoration: none;
-  color: #666;
+/* --- Liens de Navigation --- */
+.nav-link {
+  color: #666 !important;
   font-size: 0.95rem;
-  transition: color 0.3s;
-  white-space: nowrap;
+  font-weight: 400;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem !important;
 }
 
-.nav a:hover,
-.nav a.active {
-  color: #333;
-  font-weight: 500;
+.nav-link:hover {
+  color: #333 !important;
 }
 
-.btn-deconnexion {
-  background-color: #FFFFFF;
-  border: none;
-  color: #666;
-  padding: 0.5rem 1.5rem;
+.nav-link.active {
+  color: #0d6efd !important;
+  font-weight: 600;
+}
+
+/* --- Bouton Déconnexion --- */
+.btn-outline-danger {
   font-size: 0.95rem;
-  white-space: nowrap;
+  font-weight: 500;
+  border-width: 1.5px;
+  transition: all 0.2s ease;
 }
 
-.btn-deconnexion:hover {
-  color: #333;
-  font-weight: 500;
+/* --- Responsive Desktop (PC) --- */
+@media (min-width: 992px) {
+  .nav-link.active {
+    position: relative;
+  }
+
+  /* Petit trait de soulignement moderne */
+  .nav-link.active::after {
+    content: "";
+    position: absolute;
+    bottom: -5px;
+    left: 1rem;
+    right: 1rem;
+    height: 3px;
+    background-color: #0d6efd;
+    border-radius: 10px;
+  }
+}
+
+/* --- Responsive Mobile / Tablette --- */
+@media (max-width: 991.98px) {
+  .navbar.container {
+    padding-left: 1rem !important; /* On réduit un peu l'espace sur mobile */
+    padding-right: 1rem !important;
+  }
+
+  .nav-link {
+    padding: 0.75rem 1rem !important;
+  }
+
+  .nav-link.active {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #0d6efd; /* Indicateur visuel à gauche sur mobile */
+  }
 }
