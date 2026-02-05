@@ -6,5 +6,6 @@ export interface Livre {
   couverture: string;
   exemplaireTotal: number;
   exemplaireDisponible: number;
+  commentaire?: string;
   note?: number;
 }

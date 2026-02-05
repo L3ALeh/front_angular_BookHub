@@ -11,17 +11,12 @@
       <span class="input-group-text bg-transparent border-end-0 text-muted">
         <i class="bi bi-search"></i>
       </span>
-      <input type="text"
-             class="form-control border-start-0 ps-0 shadow-none"
-             placeholder="Rechercher..."
-             [(ngModel)]="searchTerm"
-             (input)="applyFilters()">
+      <input type="text" class="form-control border-start-0 ps-0 shadow-none" placeholder="Rechercher..." [(ngModel)]="searchTerm" (input)="applyFilters()">
     </div>
 
     <div class="filter-controls-group d-flex align-items-center justify-content-between gap-2">
       <div class="dropdown flex-grow-1">
-        <button class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between gap-2 px-2 border bg-white text-dark"
-                type="button" data-bs-toggle="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between gap-2 px-2 border bg-white text-dark" type="button" data-bs-toggle="dropdown">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-filter"></i>
             <span class="text-truncate cat-label">{{ selectedCategorie }}</span>
@@ -30,15 +25,12 @@
         <ul class="dropdown-menu shadow">
           <li><a class="dropdown-item" (click)="selectedCategorie = 'Toutes catégories'; applyFilters()">Toutes catégories</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li *ngFor="let cat of categories">
-            <a class="dropdown-item" (click)="selectedCategorie = cat; applyFilters()">{{ cat }}</a>
-          </li>
+          <li *ngFor="let cat of categories"><a class="dropdown-item" (click)="selectedCategorie = cat; applyFilters()">{{ cat }}</a></li>
         </ul>
       </div>
 
       <div class="form-check form-switch d-flex align-items-center gap-2 mb-0 ms-2">
-        <input class="form-check-input" type="checkbox" id="dispoCheck"
-               [(ngModel)]="onlyAvailable" (change)="applyFilters()">
+        <input class="form-check-input" type="checkbox" id="dispoCheck" [(ngModel)]="onlyAvailable" (change)="applyFilters()">
         <label class="form-check-label text-nowrap small fw-medium" for="dispoCheck">
           <span class="d-none d-sm-inline">Disponibles uniquement</span>
           <span class="d-inline d-sm-none">Dispo</span>
@@ -49,7 +41,9 @@
 
   <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
     <div class="col" *ngFor="let l of livresFiltres">
-      <div class="card h-100 border-0 shadow-sm book-card">
+      <div class="card h-100 border-0 shadow-sm book-card"
+           (click)="goToDetails(l.uuidLivre)"
+           style="cursor: pointer;">
         <div class="position-relative">
           <img [src]="l.couverture" class="card-img-top" [alt]="l.titre" style="height: 250px; object-fit: cover;">
           <span class="badge position-absolute top-0 end-0 m-2 rounded-pill"
@@ -61,7 +55,9 @@
           <h2 class="card-title h6 fw-bold mb-1 text-truncate">{{ l.titre }}</h2>
           <p class="text-muted x-small mb-3">{{ l.auteur }}</p>
           <div class="d-flex justify-content-between align-items-center">
-            <span class="text-warning fw-bold small">⭐ {{ l.note || 4.5 }}</span>
+            <span class="text-warning fw-bold small">
+              ⭐ {{ (l.note || 0) | number:'1.1-1' }}
+            </span>
             <span class="text-muted x-small text-uppercase fw-semibold">{{ l.categorie }}</span>
           </div>
         </div>

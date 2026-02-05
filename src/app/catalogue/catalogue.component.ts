@@ -1,30 +1,28 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { LivreService } from '../services/livre.service';
 import { Livre } from '../models/livre.model';
 
 @Component({
   selector: 'app-catalogue',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './catalogue.component.html',
   styleUrls: ['./catalogue.component.css']
 })
 export class CatalogueComponent implements OnInit {
   livres: Livre[] = [];
   livresFiltres: Livre[] = [];
-
   searchTerm: string = '';
   selectedCategorie: string = 'Toutes catégories';
   onlyAvailable: boolean = false;
   categories: string[] = [];
-
-  // Variables pour la gestion du scroll
   isHeaderVisible: boolean = true;
   lastScrollTop: number = 0;
 
-  constructor(private livreService: LivreService) {}
+  constructor(private livreService: LivreService, private router: Router) {}
 
   ngOnInit(): void {
     this.livreService.getLivres().subscribe(data => {
@@ -35,25 +33,28 @@ export class CatalogueComponent implements OnInit {
     });
   }
 
+  goToDetails(uuid: string): void {
+    if (uuid) {
+      this.router.navigate(['/book', uuid]);
+    }
+  }
+
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
     const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
 
-    //  Fermer le menu burger s'il est ouvert
+    // Fermeture automatique du menu burger
     const navbarCollapse = document.getElementById('navbarNav');
     if (navbarCollapse && navbarCollapse.classList.contains('show')) {
       navbarCollapse.classList.remove('show');
     }
 
-    //  Gestion de la visibilité de la barre de filtres
+    // Toggle de la barre de filtres
     if (currentScroll > this.lastScrollTop && currentScroll > 100) {
-      // si en bas  = cacher la barre
       this.isHeaderVisible = false;
     } else {
-      // Si c'est remonté ou on est en haut = affiche
       this.isHeaderVisible = true;
     }
-
     this.lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
   }
 
@@ -65,7 +66,6 @@ export class CatalogueComponent implements OnInit {
 
       const selected = this.selectedCategorie.toLowerCase().trim();
       const current = (l.categorie || '').toLowerCase().trim();
-
       const matchCat = selected === 'toutes catégories' || current === selected;
       const matchDispo = !this.onlyAvailable || l.exemplaireDisponible > 0;
 
