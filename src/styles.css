@@ -1,116 +1,12 @@
-/* Variables couleurs */
-:root {
-  --color-background: #F8F8F8;      /* Fond principal du site */
-  --color-section: #FFFFFF;         /* Sections / conteneurs */
-  --color-button: #0088FF;          /* Boutons principaux */
-  --color-button-hover: #005FCC;    /* Exemple hover */
-  --color-text-primary: #000000;    /* Texte principal */
-  --color-text-secondary: #494646;  /* Texte secondaire / aides */
-  --color-status-positive: #34C759; /* Statut positif */
-  --color-status-negative: #FF383C; /* Statut négatif */
-}
-
-/* Global */
-body {
-  background-color: var(--color-background);
-  color: var(--color-text-primary);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
-/* Sections & Conteneurs */
-.section, .card {
-  background-color: var(--color-section);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-/* Titres */
-h1, h2, h3, h4, h5, h6 {
-  color: var(--color-text-primary);
-  margin: 0 0 10px 0;
-}
-
-/* Paragraphes & textes */
-p, span, label {
-  color: var(--color-text-primary);
-}
-
-.text-secondary {
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
-}
-
-/* Boutons */
-button, .btn {
-  background-color: var(--color-button);
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
-button:hover, .btn:hover {
-  background-color: var(--color-button-hover);
-}
-
-/* Statuts */
-.status-positive {
-  color: var(--color-status-positive);
-  font-weight: bold;
-}
-
-.status-negative {
-  color: var(--color-status-negative);
-  font-weight: bold;
-}
-
-/* Inputs & Forms */
-input, select, textarea {
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 1rem;
-  color: var(--color-text-primary);
-}
-
-input::placeholder, textarea::placeholder {
-  color: var(--color-text-secondary);
-}
-
-/* Liens */
-a {
-  color: var(--color-button);
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-/* Tables */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
-
-th, td {
-  padding: 12px 15px;
-  text-align: left;
-}
-
-th {
-  background-color: var(--color-section);
-  color: var(--color-text-primary);
-}
-
-tr:nth-child(even) {
-  background-color: #f2f2f2;
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #F8F8F8;
+  font-family: Arial, sans-serif;
 }
