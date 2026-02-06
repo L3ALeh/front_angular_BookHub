@@ -1,0 +1,146 @@
+<div *ngIf="livre" class="container py-4">
+  <button class="btn btn-link text-dark p-0 mb-4 text-decoration-none" routerLink="/catalogue">
+    <i class="bi bi-arrow-left"></i> Retour au catalogue
+  </button>
+
+  <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+    <div class="row g-4">
+      <div class="col-md-4 col-lg-3">
+        <img [alt]="livre.titre" [src]="livre.couverture" class="img-fluid rounded-3 shadow-sm w-100"
+             style="object-fit: cover;">
+      </div>
+
+      <div class="col-md-8 col-lg-9">
+        <span
+          [ngClass]="livre.exemplaireDisponible > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'"
+          class="badge rounded-pill px-3 mb-2">
+          {{ livre.exemplaireDisponible > 0 ? 'Disponible' : 'Indisponible' }}
+        </span>
+
+        <h1 class="h2 fw-bold mb-1">{{ livre.titre }}</h1>
+        <p class="text-muted mb-3">{{ livre.auteur }}</p>
+
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <div class="text-warning">
+            <i class="bi bi-star-fill"></i>
+            <span class="ms-1 fw-bold text-dark">{{ (livre.note || 0) | number:'1.1-1' }}</span>
+          </div>
+          <span class="text-muted small">(Note globale)</span>
+        </div>
+
+        <div class="text-muted small mb-4">
+          <p class="mb-1"><strong>Catégorie:</strong> {{ livre.categorie }}</p>
+          <p class="mb-1"><strong>Stock:</strong> {{ livre.exemplaireDisponible }} / {{ livre.exemplaireTotal }}
+            exemplaires</p>
+        </div>
+
+        <h6 class="fw-bold">Description</h6>
+        <p class="text-muted small mb-4">{{ livre.description || 'Aucune description disponible pour ce livre.' }}</p>
+
+        <div class="d-flex gap-2">
+          <button (click)="emprunterLivre()"
+                  *ngIf="livre.exemplaireDisponible > 0"
+                  class="btn btn-primary px-4 py-2 rounded-3">
+            Emprunter ce livre
+          </button>
+          <button (click)="reserverLivre()"
+                  *ngIf="livre.exemplaireDisponible <= 0"
+                  class="btn btn-outline-primary px-4 py-2 rounded-3">
+            <i class="bi bi-clock-history"></i> Réserver ce livre
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 p-4">
+    <h5 class="fw-bold mb-4">Commentaires et avis</h5>
+
+    <div *ngIf="estUtilisateur && aDejaLuCeLivre; else blockMessage" class="mb-4">
+      <h6 class="small fw-bold">Ajouter un avis</h6>
+      <p class="text-muted small mb-1">Votre note</p>
+
+      <div (mouseleave)="setHover(0)" class="text-warning h4 mb-3">
+        <i (click)="noter(star)"
+           (mouseenter)="setHover(star)"
+           *ngFor="let star of [1, 2, 3, 4, 5]"
+           [ngClass]="(noteSurvolee || noteSelectionnee) >= star ? 'bi-star-fill' : 'bi-star'"
+           class="bi pointer"
+           style="cursor: pointer; margin-right: 5px;">
+        </i>
+        <span *ngIf="noteSelectionnee > 0" class="ms-2 text-muted small">
+          ({{ noteSelectionnee }}/5)
+        </span>
+      </div>
+
+      <label class="small fw-bold mb-2">Votre commentaire</label>
+      <textarea class="form-control bg-light border-0 mb-3" placeholder="Partagez votre avis sur ce livre..."
+                rows="4"></textarea>
+
+      <button [disabled]="noteSelectionnee === 0" class="btn btn-primary px-4">
+        Publier l'avis
+      </button>
+    </div>
+
+    <ng-template #blockMessage>
+      <div class="alert alert-light border-0 py-3 mb-4">
+        <p class="text-muted small mb-0">
+          <i class="bi bi-info-circle me-2"></i>
+          Seuls les utilisateurs ayant déjà emprunté ce livre peuvent laisser un avis.
+        </p>
+      </div>
+    </ng-template>
+
+    <hr class="text-muted opacity-25">
+    <p *ngIf="!livre.commentaire?.length" class="text-center text-muted small py-3">
+      Aucun commentaire pour le moment.
+    </p>
+  </div>
+</div>
+<div aria-hidden="true" class="modal fade" id="editBookModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">Modifier les informations</h5>
+        <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+      </div>
+      <div *ngIf="livre" class="modal-body p-4">
+        <form #editForm="ngForm">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Titre</label>
+            <input [(ngModel)]="livre.titre" class="form-control rounded-3" name="titre" required type="text">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Auteur</label>
+            <input [(ngModel)]="livre.auteur" class="form-control rounded-3" name="auteur" required type="text">
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <label class="form-label small fw-bold">Catégorie</label>
+              <input [(ngModel)]="livre.categorie" class="form-control rounded-3" name="categorie" type="text">
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold">Stock Total</label>
+              <input [(ngModel)]="livre.exemplaireTotal" class="form-control rounded-3" name="stock" type="number">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Description</label>
+            <textarea [(ngModel)]="livre.description" class="form-control rounded-3" name="description"
+                      rows="3"></textarea>
+          </div>
+          <div class="mb-0">
+            <label class="form-label small fw-bold">URL de l'image</label>
+            <input [(ngModel)]="livre.couverture" class="form-control rounded-3" name="couverture" type="text">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" type="button">Annuler</button>
+        <button (click)="validerModification()" class="btn btn-primary rounded-pill px-4" type="button">
+          Enregistrer les modifications
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

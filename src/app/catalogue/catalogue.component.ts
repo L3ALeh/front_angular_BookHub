@@ -1,9 +1,10 @@
-import { Component, OnInit, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { LivreService } from '../services/livre.service';
-import { Livre } from '../models/livre.model';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {Router, RouterModule} from '@angular/router';
+import {LivreService} from '../services/livre.service';
+import {Livre} from '../models/livre.model';
+
 
 @Component({
   selector: 'app-catalogue',
@@ -22,9 +23,21 @@ export class CatalogueComponent implements OnInit {
   isHeaderVisible: boolean = true;
   lastScrollTop: number = 0;
 
-  constructor(private livreService: LivreService, private router: Router) {}
+  // gestion Librarian
+  modeEdition: boolean = false;
+  livreEnCours: any = {};
+
+  constructor(
+    private livreService: LivreService,
+    private router: Router,
+  ) {
+  }
 
   ngOnInit(): void {
+    this.chargerLivres();
+  }
+
+  chargerLivres() {
     this.livreService.getLivres().subscribe(data => {
       const rawData = (data as any).content || data;
       this.livres = rawData;
@@ -33,29 +46,11 @@ export class CatalogueComponent implements OnInit {
     });
   }
 
+  // navigation et filtres
   goToDetails(uuid: string): void {
     if (uuid) {
-      this.router.navigate(['/book', uuid]);
+      this.router.navigate(['/books', uuid]);
     }
-  }
-
-  @HostListener('window:scroll', [])
-  onWindowScroll(): void {
-    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-
-    // Fermeture automatique du menu burger
-    const navbarCollapse = document.getElementById('navbarNav');
-    if (navbarCollapse && navbarCollapse.classList.contains('show')) {
-      navbarCollapse.classList.remove('show');
-    }
-
-    // Toggle de la barre de filtres
-    if (currentScroll > this.lastScrollTop && currentScroll > 100) {
-      this.isHeaderVisible = false;
-    } else {
-      this.isHeaderVisible = true;
-    }
-    this.lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
   }
 
   applyFilters(): void {
@@ -63,12 +58,9 @@ export class CatalogueComponent implements OnInit {
       const matchSearch = !this.searchTerm ||
         l.titre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         l.auteur.toLowerCase().includes(this.searchTerm.toLowerCase());
-
       const selected = this.selectedCategorie.toLowerCase().trim();
-      const current = (l.categorie || '').toLowerCase().trim();
-      const matchCat = selected === 'toutes catégories' || current === selected;
+      const matchCat = selected === 'toutes catégories' || (l.categorie || '').toLowerCase().trim() === selected;
       const matchDispo = !this.onlyAvailable || l.exemplaireDisponible > 0;
-
       return matchSearch && matchCat && matchDispo;
     });
   }
