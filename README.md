@@ -1,59 +1,65 @@
-# FrontAngular
+# 📚 Bibliothèque Numérique - Frontend (Angular)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.19.
+Bienvenue sur le dépôt du frontend de notre application de gestion de bibliothèque.
 
-## Development server
+Cette interface moderne permet aux utilisateurs de parcourir un catalogue, d'emprunter et de réserver des livres et de laisser des avis, tout en offrant aux bibliothécaires des outils de gestion complets.
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
+## Fonctionnalités
+
+###  Pour les Utilisateurs
+* **Catalogue Interactif** : Visualisation de tous les ouvrages avec recherche et filtrage par catégorie.
+* **Fiche Détail** : Consultation des informations complètes (ISBN, Éditeur, Nb de pages, Description).
+* **Système d'Emprunt** : Emprunter un livre en un clic ou le réserver s'il est indisponible.
+* **Avis & Notes** : Système de notation par étoiles et commentaires (accessible après avoir rendu l'ouvrage).
+
+###  Pour les Bibliothécaires
+* **Gestion du Stock** : Modification en temps réel des informations des livres (titre, auteur, stock total/disponible).
+* **Administration** : Ajout de nouveaux ouvrages et suppression de livres du catalogue.
+* **Modération** : Possibilité de supprimer des commentaires inappropriés.
+
+---
+
+##  Stack Technique
+* **Framework** : Angular (v16+)
+* **Style** : Bootstrap 5 pour un design responsive et épuré.
+* **Icônes** : Bootstrap Icons.
+* **Langage** : TypeScript.
+
+---
+
+##  Installation & Démarrage
+
+### Prérequis
+* Node.js (version LTS recommandée).
+* Angular CLI installé globalement (`npm install -g @angular/cli`).
+
+### Étapes
+
+1. **Cloner le projet**
+   ```bash
+   git clone https://github.com/L3ALeh/front_angular_BookHub
+   cd front_angular_BookHub
+
+2. **Installer les dépendances**
+   ```bash
+   npm install
+3. Lancer le serveur de développement
+   ```bash
+   ng serve
+4. Accéder à l'application Ouvre ton navigateur sur http://localhost:4200/.
+___
+##  Architecture du Projet
+
+```text
+src/
+├── app/
+│   ├── components/       # Composants réutilisables (Navbar, Footer, etc.)
+│   ├── pages/            # Composants de pages (Catalogue, Détails, Login)
+│   ├── services/         # Logique métier et appels API (AuthService, BookService)
+│   ├── models/           # Interfaces TypeScript (Livre, Commentaire, User)
+│   └── guards/           # Protections des routes selon les rôles
+├── assets/               # Images, logos et fichiers statiques
+└── environments/         # Configuration des URLs API (Dev/Prod)
 ```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
