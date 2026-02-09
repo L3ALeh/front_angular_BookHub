@@ -4,30 +4,34 @@ import {Injectable} from '@angular/core';
   providedIn: 'root'
 })
 export class AuthService {
-//Inutile pour le moment car aucun jeu + auth dans la bdd
-  private utilisateurConnecte = {
-    id: 1,
-    nom: '',
-    roles: ['']
+  // Scenario de test : Changement de user pour tester les deux profils
+
+  // PROFIL 1 :Lecteur simple avec un emprunt
+ private utilisateurConnecte = {
+    id: '83E529D7-D4AF-4C17-B35E-A63D67D02478', // UUID
+    nom: 'JeanLecteur',
+    roles: ['USER']
   };
 
-  constructor() {
-  }
 
-  // Vérifie si l'utilisateur possède un rôle spécifique
+  // PROFIL 2 : Bibliothécaire
+  /*private utilisateurConnecte = {
+    id: 'E6002D4B-2470-4BB8-B4B3-52FE67629F68', // UUID de Marie
+    nom: 'MarieBiblio',
+   roles: ['LIBRARIAN']
+  };*/
+
+  constructor() {}
+
   hasRole(roleDemande: string): boolean {
     return this.utilisateurConnecte.roles.includes(roleDemande);
   }
 
-  // Récupère l'ID de l'utilisateur pour les vérifications d'emprunt
-  getUserId(): number {
+  getUserId(): string {
     return this.utilisateurConnecte.id;
   }
 
-  // Vérifie si l'utilisateur est authentifié
   isAuthenticated(): boolean {
     return !!this.utilisateurConnecte;
   }
-
-
 }
