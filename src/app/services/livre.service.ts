@@ -1,20 +1,20 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
-import { Livre } from '../models/livre.model';
+import { Livre, Commentaire } from '../models/livre.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LivreService {
-  private apiUrl = 'http://localhost:8080/api/books'; //connexion avec le back )
+  private apiUrl = 'http://localhost:8080/api/books';
+  private empruntUrl = 'http://localhost:8080/api/loans';
 
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient) {}
 
   getLivres(): Observable<Livre[]> {
-    return this.http.get<any>('http://localhost:8080/api/books').pipe(
-      map(response => response.content) // apparition des livres de la bdd
+    return this.http.get<any>(`${this.apiUrl}`).pipe(
+      map(response => response.content || response)
     );
   }
 
@@ -22,10 +22,9 @@ export class LivreService {
     return this.http.get<Livre>(`${this.apiUrl}/${uuid}`);
   }
 
-  checkIfUserReadBook(uuid: string): Observable<boolean> {
-    // On renvoie un Observable de type boolean
-    // L'URL dépend de ta configuration Backend (ex: /api/livres/check-lecture/uuid)
-    return this.http.get<boolean>(`${this.apiUrl}/check-lecture/${uuid}`);
+  checkIfUserReadBook(uuid: string, userId: string): Observable<boolean> {
+    const params = new HttpParams().set('userId', userId);
+    return this.http.get<boolean>(`${this.apiUrl}/check-lecture/${uuid}`, { params });
   }
 
   addLivre(livre: any): Observable<Livre> {
@@ -38,5 +37,17 @@ export class LivreService {
 
   deleteLivre(uuid: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${uuid}`);
+  }
+
+  postCommentaire(uuidLivre: string, avis: { note: number; texte: string }): Observable<Commentaire> {
+    return this.http.post<Commentaire>(`${this.apiUrl}/${uuidLivre}/commentaires`, avis);
+  }
+
+  deleteCommentaire(idCommentaire: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/commentaires/${idCommentaire}`);
+  }
+
+  getEmpruntsUtilisateur(userId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.empruntUrl}/utilisateur/${userId}`);
   }
 }
