@@ -1,12 +1,24 @@
+export interface Commentaire {
+  id: number;
+  pseudo: string;
+  texte: string;
+  note: number;
+}
+
 export interface Livre {
-  uuidLivre: string;
+  uuidLivre?: string;
   titre: string;
   auteur: string;
-  description: string;
-  categorie: string;
-  couverture: string;
-  exemplaireTotal: number;
+  editeur: string;
+  isbn?: string;
+  categorie?: string;
+  description?: string;
+  couverture?: string;
+  page?: number;
   exemplaireDisponible: number;
-  commentaire?: string;
+  exemplaireTotal: number;
+  datePublication?: string;
+  dateAjout?: string;
   note?: number;
+  commentaires?: any[];
 }
