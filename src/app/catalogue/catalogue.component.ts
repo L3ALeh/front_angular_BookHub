@@ -4,7 +4,7 @@ import {FormsModule} from '@angular/forms';
 import {Router, RouterModule} from '@angular/router';
 import {LivreService} from '../services/livre.service';
 import {Livre} from '../models/livre.model';
-
+import {AuthService} from '../services/auth.service';
 
 @Component({
   selector: 'app-catalogue',
@@ -20,18 +20,27 @@ export class CatalogueComponent implements OnInit {
   selectedCategorie: string = 'Toutes catégories';
   onlyAvailable: boolean = false;
   categories: string[] = [];
-  isHeaderVisible: boolean = true;
-  lastScrollTop: number = 0;
 
-  // gestion Librarian
-  modeEdition: boolean = false;
-  livreEnCours: any = {};
+  nouvelleCategorie: string = '';
+
+  nouveauLivre: any = {
+    titre: '',
+    auteur: '',
+    isbn: '',
+    categorie: '',
+    description: '',
+    couverture: '',
+    datePublication: '',
+    exemplaireTotal: 1,
+    exemplaireDisponibleOptionnel: null,
+    page: 0
+  };
 
   constructor(
     private livreService: LivreService,
-    private router: Router,
-  ) {
-  }
+    public authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.chargerLivres();
@@ -41,13 +50,14 @@ export class CatalogueComponent implements OnInit {
     this.livreService.getLivres().subscribe(data => {
       const rawData = (data as any).content || data;
       this.livres = rawData;
-      this.livresFiltres = [...rawData];
-      this.categories = [...new Set(this.livres.map(l => (l.categorie || '').trim()))].sort();
+      this.applyFilters();
+      this.categories = [...new Set(this.livres.map(l => (l.categorie || '').trim()))]
+        .filter(c => c !== '')
+        .sort();
     });
   }
 
-  // navigation et filtres
-  goToDetails(uuid: string): void {
+  goToDetails(uuid: string | undefined): void {
     if (uuid) {
       this.router.navigate(['/books', uuid]);
     }
@@ -58,10 +68,37 @@ export class CatalogueComponent implements OnInit {
       const matchSearch = !this.searchTerm ||
         l.titre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         l.auteur.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const selected = this.selectedCategorie.toLowerCase().trim();
-      const matchCat = selected === 'toutes catégories' || (l.categorie || '').toLowerCase().trim() === selected;
+      const matchCat = this.selectedCategorie === 'Toutes catégories' ||
+        l.categorie === this.selectedCategorie;
       const matchDispo = !this.onlyAvailable || l.exemplaireDisponible > 0;
       return matchSearch && matchCat && matchDispo;
     });
+  }
+
+  confirmerAjout() {
+    // On génère la date du jour
+    const dateAujourdhui = new Date().toLocaleDateString('fr-FR');
+
+    const livreAEnvoyer = {
+      ...this.nouveauLivre,
+      dateAjout: dateAujourdhui // On force le format JJ/MM/AAAA
+    };
+    //Ajout du livre en BDD
+    this.livreService.addLivre(livreAEnvoyer).subscribe({
+      next: () => {
+        this.chargerLivres();
+        this.resetForm();
+      }
+    });
+  }
+
+  // Mettre le formulaire de création de livre en vierge
+  private resetForm() {
+    this.nouveauLivre = {
+      titre: '', auteur: '', isbn: '', categorie: '',
+      description: '', couverture: '', datePublication: '',
+      exemplaireTotal: 1, exemplaireDisponibleOptionnel: null, page: 0
+    };
+    this.nouvelleCategorie = '';
   }
 }
