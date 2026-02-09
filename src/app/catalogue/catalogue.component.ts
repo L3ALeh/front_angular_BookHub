@@ -47,16 +47,24 @@ export class CatalogueComponent implements OnInit {
   }
 
   chargerLivres() {
-    this.livreService.getLivres().subscribe(data => {
-      const rawData = (data as any).content || data;
-      this.livres = rawData;
-      this.applyFilters();
-      this.categories = [...new Set(this.livres.map(l => (l.categorie || '').trim()))]
-        .filter(c => c !== '')
-        .sort();
+    this.livreService.getLivres().subscribe({
+      next: (data) => {
+        // On s'assure de récupérer le tableau, peu importe le format (paginé ou brut)
+        this.livres = (data as any).content || data || [];
+
+        // Extraction des catégories uniques
+        this.categories = [...new Set(this.livres.map(l => (l.categorie || '').trim()))]
+          .filter(c => c !== '')
+          .sort();
+
+        // TRÈS IMPORTANT : On force l'application des filtres pour remplir livresFiltres
+        this.applyFilters();
+      },
+      error: (err) => {
+        console.error("Erreur BDD : ", err); // Vérifiez la console (F12) pour voir si l'API répond
+      }
     });
   }
-
   goToDetails(uuid: string | undefined): void {
     if (uuid) {
       this.router.navigate(['/books', uuid]);
