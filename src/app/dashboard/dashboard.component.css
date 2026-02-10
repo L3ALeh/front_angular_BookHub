@@ -1,0 +1,23 @@
+.extra-small {
+  font-size: 0.7rem;
+}
+
+.rounded-4 {
+  border-radius: 1.25rem !important;
+}
+
+.card {
+  border-radius: 12px;
+}
+
+.alert-danger {
+  background-color: #FFF2F2;
+}
+
+.bg-light {
+  background-color: #F8F9FA !important;
+}
+
+.vstack .d-flex {
+  padding-bottom: 8px;
+}

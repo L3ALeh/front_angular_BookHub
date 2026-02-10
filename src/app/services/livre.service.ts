@@ -12,6 +12,7 @@ export class LivreService {
 
   constructor(private http: HttpClient) {}
 
+  // PARTIE LIVRES
   getLivres(): Observable<Livre[]> {
     return this.http.get<any>(`${this.apiUrl}`).pipe(
       map(response => response.content || response)
@@ -47,7 +48,21 @@ export class LivreService {
     return this.http.delete<void>(`${this.apiUrl}/commentaires/${idCommentaire}`);
   }
 
+    // PARTIE EMPRUNTS
+
+  // Récupérer les emprunts d'un seul utilisateur (Lecteur)
   getEmpruntsUtilisateur(userId: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.empruntUrl}/utilisateur/${userId}`);
+  }
+
+  // Récupérer TOUS les emprunts de la base (Bibliothécaire)
+  // Indispensable pour calculer les retards globaux et le taux d'occupation
+  getEmprunts(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.empruntUrl}`);
+  }
+
+  // Supprimer un emprunt (Bouton "Rendre")
+  deleteEmprunt(uuidEmprunt: string): Observable<void> {
+    return this.http.delete<void>(`${this.empruntUrl}/${uuidEmprunt}`);
   }
 }

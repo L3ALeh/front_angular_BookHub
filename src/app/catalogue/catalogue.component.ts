@@ -81,22 +81,33 @@ export class CatalogueComponent implements OnInit {
   }
 
   confirmerAjout() {
-    // On génère la date du jour
-    const dateAujourdhui = new Date().toLocaleDateString('fr-FR');
+    // 1. Gérer la catégorie "Autre"
+    if (this.nouveauLivre.categorie === 'AUTRE') {
+      this.nouveauLivre.categorie = this.nouvelleCategorie;
+    }
 
     const livreAEnvoyer = {
       ...this.nouveauLivre,
-      dateAjout: dateAujourdhui // On force le format JJ/MM/AAAA
+      // Initialiser les exemplaires disponibles au même niveau que le total
+      exemplaireDisponible: this.nouveauLivre.exemplaireTotal,
+      // Convertir les types si nécessaire (ex: s'assurer que page est un nombre)
+      page: Number(this.nouveauLivre.page) || 0,
+      exemplaireTotal: Number(this.nouveauLivre.exemplaireTotal) || 1
     };
-    //Ajout du livre en BDD
+
+    console.log("Données envoyées au backend :", livreAEnvoyer);
+
     this.livreService.addLivre(livreAEnvoyer).subscribe({
       next: () => {
         this.chargerLivres();
         this.resetForm();
+      },
+      error: (err) => {
+        console.error("Erreur serveur détaillée :", err);
+        alert("Erreur lors de l'ajout du livre. Vérifiez la console pour plus de détails.");
       }
     });
   }
-
   // Mettre le formulaire de création de livre en vierge
   private resetForm() {
     this.nouveauLivre = {
