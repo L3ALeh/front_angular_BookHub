@@ -36,7 +36,6 @@ export class DashboardComponent implements OnInit {
     const aujourdhui = new Date();
     aujourdhui.setHours(0, 0, 0, 0);
 
-    // 1. Chargement des statistiques des livres
     this.livreService.getLivres().subscribe({
       next: (res) => {
         this.livres = res;
@@ -55,7 +54,6 @@ export class DashboardComponent implements OnInit {
       next: (emprunts) => {
         const userId = this.authService.getUserId();
 
-        // --- TRAITEMENT USER (Pour tes cartes et ta liste avec visuels) ---
         this.mesEmprunts = emprunts
           .filter(e => {
             const idUser = e.utilisateur?.uuidUtilisateur || e.uuidUtilisateur || e.uuid_utilisateur;
@@ -76,7 +74,6 @@ export class DashboardComponent implements OnInit {
 
         this.retardsLecteur = this.mesEmprunts.filter(e => e.joursRetard > 0).length;
 
-        // --- TRAITEMENT LIBRARIAN (Pour les détails à droite et l'alerte jaune) ---
         this.empruntsEnRetard = emprunts
           .filter(e => {
             const dateFin = new Date(e.dateFinPrevue || e.date_fin_prevue);

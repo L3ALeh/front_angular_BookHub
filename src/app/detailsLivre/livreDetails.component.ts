@@ -83,19 +83,28 @@ export class livreDetailsComponent implements OnInit {
   // Mise à jour du livre
   validerModification(): void {
     if (this.livre && this.livre.uuidLivre) {
-      let datePubISO = this.livre.datePublication;
-      if (datePubISO && datePubISO.includes('/')) {
-        const [day, month, year] = datePubISO.split('/');
-        datePubISO = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      let dateAEnvoyer = this.livre.datePublication;
+
+      // Si la date est au format FR (JJ/MM/AAAA), on la convertit en ISO pour le backend
+      if (dateAEnvoyer && dateAEnvoyer.includes('/')) {
+        const parts = dateAEnvoyer.split('/');
+        if (parts.length === 3) {
+          // Format ISO: YYYY-MM-DD
+          dateAEnvoyer = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+        }
       }
+      // Si c'est juste "2014", on le laisse tel quel (le backend l'acceptera en String)
 
       const livreAjour = {
         ...this.livre,
         exemplaireTotal: Number(this.livre.exemplaireTotal),
         exemplaireDisponible: Number(this.livre.exemplaireDisponible),
         page: this.livre.page ? Number(this.livre.page) : 0,
-        datePublication: datePubISO
+        datePublication: dateAEnvoyer
       };
+
+      // On retire dateAjout car elle est updatable=false côté Java et peut causer des erreurs de désérialisation
+      delete (livreAjour as any).dateAjout;
 
       this.livreService.updateLivre(this.livre.uuidLivre.toString(), livreAjour).subscribe({
         next: (res) => {
@@ -103,19 +112,26 @@ export class livreDetailsComponent implements OnInit {
           this.formaterDatesPourAffichage();
           alert('Informations mises à jour avec succès !');
         },
-        error: (err) => alert('Erreur : ' + (err.error?.message || err.message))
+        error: (err) => {
+          console.error("Erreur Backend détaillée:", err);
+          alert('Erreur lors de la sauvegarde. Vérifiez le format de la date.');
+        }
       });
     }
   }
 
   private formaterDatesPourAffichage(): void {
     if (this.livre) {
+      // Formatage de la date d'ajout (ISO -> FR)
       if (this.livre.dateAjout && this.livre.dateAjout.includes('T')) {
         this.livre.dateAjout = new Date(this.livre.dateAjout).toLocaleDateString('fr-FR');
       }
+
       if (this.livre.datePublication && this.livre.datePublication.includes('-')) {
-        const [y, m, d] = this.livre.datePublication.split('-');
-        this.livre.datePublication = `${d}/${m}/${y}`;
+        const parts = this.livre.datePublication.split('-');
+        if (parts.length === 3) {
+          this.livre.datePublication = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
       }
     }
   }
@@ -145,10 +161,20 @@ export class livreDetailsComponent implements OnInit {
   }
 
   supprimerLivre(): void {
-    if (confirm('Voulez-vous vraiment retirer ce livre du catalogue ?')) {
-      this.livreService.deleteLivre(this.livre!.uuidLivre!.toString()).subscribe(() => {
-        this.router.navigate(['/catalogue']);
-      });
+    if (this.livre && this.livre.uuidLivre) {
+      if (confirm('Voulez-vous vraiment retirer ce livre du catalogue ?')) {
+        this.livreService.deleteLivre(this.livre.uuidLivre.toString()).subscribe({
+          next: () => {
+            console.log('Livre supprimé avec succès');
+            // Utilise le chemin exact de ton catalogue (ex: '/books')
+            this.router.navigate(['/books']);
+          },
+          error: (err) => {
+            console.error('Erreur lors de la suppression', err);
+            alert('Impossible de supprimer ce livre. Il est peut-être lié à des emprunts en cours.');
+          }
+        });
+      }
     }
   }
 
