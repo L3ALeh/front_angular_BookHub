@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {CommonModule, registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import {Emprunt, EmpruntService} from '../services/emprunt.service';
+import {AuthService} from '../services/auth.service';
 
 // Enregistrer le locale français
 registerLocaleData(localeFr);
@@ -22,7 +23,7 @@ export class EmpruntComponent implements OnInit{
   // TEMPORAIRE : en dur pour les tests !
   idUtilisateur = '11111111-1111-1111-1111-111111111111';
 
-  constructor(private empruntService: EmpruntService) {}
+  constructor(private empruntService: EmpruntService, public authService: AuthService,) {}
 
   ngOnInit(): void {
     this.chargerEmpruntsEnCours();

@@ -35,7 +35,10 @@
               <div *ngIf="!emprunt.estEnRetard" class="text-success small d-block mb-1">
                 <i class="bi bi-check"></i> {{ joursRestants(emprunt) }} jours restants
               </div>
-              <button class="btn btn-primary">Retourner ce livre</button>
+              <div *ngIf="authService.hasRole('LIBRARIAN')" class="d-flex gap-2">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editBookModal">
+                  Retourner ce livre
+                </button>
             </div>
           </div>
           <div class="col-md-4 col-lg-3 d-flex align-items-center">
@@ -84,4 +87,4 @@
     </div>
   </div>
 </div>
-
+</div>
