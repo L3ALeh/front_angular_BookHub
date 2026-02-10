@@ -44,7 +44,7 @@
     </div>
   </div>
 
-  <div *ngIf="livresFiltres.length > 0" class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+  <div *ngIf="livresFiltres.length > 0; else noBooks" class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
     <div *ngFor="let l of livresFiltres" class="col">
       <div (click)="goToDetails(l.uuidLivre)" class="card h-100 border-0 shadow-sm book-card" style="cursor: pointer;">
         <div class="position-relative">
@@ -56,26 +56,28 @@
         <div class="card-body p-3 d-flex flex-column">
           <h2 class="card-title h6 fw-bold mb-0 text-truncate">{{ l.titre }}</h2>
           <p class="text-muted mb-2 small">{{ l.auteur }}</p>
-
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="text-warning small"><i class="bi bi-star-fill me-1"></i>{{ (l.note || 0) | number:'1.1-1' }}</span>
             <span class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem;">{{ l.categorie }}</span>
           </div>
-
           <div class="mt-auto pt-2 border-top">
             <div class="d-flex justify-content-between align-items-center small">
-              <div>
-                <span [class.text-danger]="l.exemplaireDisponible === 0" class="fw-bold">
-                  {{ l.exemplaireDisponible }} / {{ l.exemplaireTotal }}
-                </span>
-                <span class="text-muted ms-1">disponible</span>
-              </div>
+              <span [class.text-danger]="l.exemplaireDisponible === 0" class="fw-bold">
+                {{ l.exemplaireDisponible }} / {{ l.exemplaireTotal }} disponible(s)
+              </span>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <ng-template #noBooks>
+    <div class="text-center py-5">
+      <i class="bi bi-book-half display-1 text-light mb-3"></i>
+      <p class="text-muted">Aucun ouvrage trouvé.</p>
+    </div>
+  </ng-template>
 </div>
 
 <div class="modal fade" id="addBookModal" tabindex="-1" aria-hidden="true">
@@ -88,42 +90,41 @@
       <div class="modal-body p-4">
         <form #addForm="ngForm">
           <div class="row g-3">
+
             <div class="col-md-8">
               <label class="form-label small fw-bold">Titre *</label>
               <input [(ngModel)]="nouveauLivre.titre" name="titre" class="form-control rounded-3" required type="text">
             </div>
+
             <div class="col-md-4">
               <label class="form-label small fw-bold">ISBN *</label>
-              <input [(ngModel)]="nouveauLivre.isbn" name="isbn" class="form-control rounded-3" required type="text" placeholder="Ex: 978...">
+              <input [(ngModel)]="nouveauLivre.isbn" name="isbn" class="form-control rounded-3" required type="text">
             </div>
+
             <div class="col-md-6">
               <label class="form-label small fw-bold">Auteur *</label>
               <input [(ngModel)]="nouveauLivre.auteur" name="auteur" class="form-control rounded-3" required type="text">
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-bold">Date de parution (Saisie manuelle)</label>
-              <input [(ngModel)]="nouveauLivre.datePublication"
-                     name="datePublication"
-                     class="form-control rounded-3"
-                     type="text"
-                     placeholder="Ex: 2024 ou 15/01/2022">
+              <label class="form-label small fw-bold">Date de parution</label>
+              <input [(ngModel)]="nouveauLivre.datePublication" name="datePublication" class="form-control rounded-3" type="text" placeholder="JJ/MM/AAAA">
             </div>
 
             <div class="col-md-6">
               <label class="form-label small fw-bold">Éditeur</label>
-              <input [(ngModel)]="nouveauLivre.editeur" name="editeur" class="form-control rounded-3" type="text" placeholder="Ex: Gallimard">
+              <input [(ngModel)]="nouveauLivre.editeur" name="editeur" class="form-control rounded-3" type="text">
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-bold">Nb Pages</label>
-              <input [(ngModel)]="nouveauLivre.page" name="page" class="form-control rounded-3" type="number" min="0">
+              <label class="form-label small fw-bold">Nombre de pages</label>
+              <input [(ngModel)]="nouveauLivre.page" name="page" class="form-control rounded-3" type="number">
             </div>
 
             <div class="col-md-6">
               <label class="form-label small fw-bold">Catégorie *</label>
               <select [(ngModel)]="nouveauLivre.categorie" name="categorie" class="form-select rounded-3" required>
-                <option value="" disabled selected>Choisir...</option>
+                <option value="" disabled selected>Sélectionner...</option>
                 <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
                 <option value="AUTRE" class="text-primary fw-bold">+ Nouveau genre...</option>
               </select>
@@ -131,26 +132,21 @@
 
             <div class="col-md-6" *ngIf="nouveauLivre.categorie === 'AUTRE'">
               <label class="form-label small fw-bold text-primary">Nouveau genre</label>
-              <input [(ngModel)]="nouvelleCategorie" name="nouvelleCat" class="form-control border-primary rounded-3" type="text" placeholder="Nom du genre...">
+              <input [(ngModel)]="nouvelleCategorie" name="nouvelleCat" class="form-control border-primary rounded-3" type="text">
             </div>
 
             <div class="col-md-4">
-              <label class="form-label small fw-bold">Stock Total *</label>
+              <label class="form-label small fw-bold">Stock Initial *</label>
               <input [(ngModel)]="nouveauLivre.exemplaireTotal" name="exemplaireTotal" class="form-control rounded-3" type="number" min="1" required>
             </div>
 
-            <div class="col-md-4">
-              <label class="form-label small fw-bold text-danger">Dispo (Manuel)</label>
-              <input [(ngModel)]="nouveauLivre.exemplaireDisponibleOptionnel" name="exemplaireDisponibleOptionnel" class="form-control rounded-3" type="number" placeholder="Auto (si vide)">
-            </div>
-
-            <div class="col-12">
-              <label class="form-label small fw-bold">Lien Couverture (URL)</label>
+            <div class="col-md-8">
+              <label class="form-label small fw-bold">Lien de la couverture (URL)</label>
               <input [(ngModel)]="nouveauLivre.couverture" name="couverture" class="form-control rounded-3" type="text" placeholder="https://...">
             </div>
 
             <div class="col-12">
-              <label class="form-label small fw-bold">Description / Résumé</label>
+              <label class="form-label small fw-bold">Résumé</label>
               <textarea [(ngModel)]="nouveauLivre.description" name="description" class="form-control rounded-3" rows="3"></textarea>
             </div>
           </div>
@@ -161,7 +157,7 @@
         <button (click)="confirmerAjout()"
                 [disabled]="addForm.invalid || (nouveauLivre.categorie === 'AUTRE' && !nouvelleCategorie)"
                 class="btn btn-primary rounded-pill px-4" data-bs-dismiss="modal">
-          Enregistrer l'ouvrage
+          Enregistrer le livre
         </button>
       </div>
     </div>

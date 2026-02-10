@@ -47,16 +47,21 @@ export class CatalogueComponent implements OnInit {
   }
 
   chargerLivres() {
-    this.livreService.getLivres().subscribe(data => {
-      const rawData = (data as any).content || data;
-      this.livres = rawData;
-      this.applyFilters();
-      this.categories = [...new Set(this.livres.map(l => (l.categorie || '').trim()))]
-        .filter(c => c !== '')
-        .sort();
+    this.livreService.getLivres().subscribe({
+      next: (data) => {
+        this.livres = (data as any).content || data || [];
+
+        // Extraction des catégories uniques
+        this.categories = [...new Set(this.livres.map(l => (l.categorie || '').trim()))]
+          .filter(c => c !== '')
+          .sort();
+        this.applyFilters();
+      },
+      error: (err) => {
+        console.error("Erreur BDD : ", err);
+      }
     });
   }
-
   goToDetails(uuid: string | undefined): void {
     if (uuid) {
       this.router.navigate(['/books', uuid]);
