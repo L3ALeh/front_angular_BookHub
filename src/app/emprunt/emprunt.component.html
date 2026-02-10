@@ -1,0 +1,87 @@
+<div class="container py-4">
+  <div class="">
+    <h1 class="h2 fw-bold mb-1">Mes emprunts et réservations</h1>
+    <p class="text-muted mb-2 fs-5">Gérez vos livres empruntés et réservés</p>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+    <div class="d-flex justify-content-around align-items-center">
+      <button class="onglet" [class.actif]="ongletActif === 'emprunt'" (click)="changerOnglet('emprunt')"> Mes emprunts ({{ empruntsEnCours?.length || 0 }}) </button>
+      <button class="onglet"> Mes réservations (0) </button>
+    </div>
+  </div>
+  <div *ngIf="ongletActif === 'emprunt'">
+    <h5 class="fw-bold mb-4">Emprunts en cours</h5>
+      <div *ngIf="empruntsEnCours.length === 0">
+        Aucun emprunt en cours
+      </div>
+      <div *ngFor="let emprunt of empruntsEnCours" class="carte-emprunt">
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <div class="row g-4">
+          <div class="col-md-6 col-lg-2">
+            <img [alt]="emprunt.livre.titre" [src]="emprunt.livre.couverture || 'assets/placeholder.png'"
+               class="img-fluid rounded-3 shadow-sm w-50" style="object-fit: cover; min-height: 250px;">
+          </div>
+          <div class="col-md-4 col-lg-5 d-flex align-items-center">
+            <div>
+              <h6 class="fw-semibold text-dark">{{ emprunt.livre.titre }}</h6>
+              <p class="m-1">{{ emprunt.livre.auteur }}</p>
+              <p class="text-muted small d-block mb-1">Emprunté le {{ emprunt.dateDebut | date:'dd MMMM yyyy':'':'fr' }}</p>
+
+              <!-- Indicateur retard ou jours restants -->
+              <div *ngIf="emprunt.estEnRetard" class="text-danger small d-block mb-1">
+                <i class="bi bi-exclamation-circle-fill"></i> En retard de {{ joursRetard(emprunt) }} jours
+              </div>
+              <div *ngIf="!emprunt.estEnRetard" class="text-success small d-block mb-1">
+                <i class="bi bi-check"></i> {{ joursRestants(emprunt) }} jours restants
+              </div>
+              <button class="btn btn-primary">Retourner ce livre</button>
+            </div>
+          </div>
+          <div class="col-md-4 col-lg-3 d-flex align-items-center">
+            <div *ngIf="emprunt.estEnRetard" class="text-danger">
+            <p class="date-retour">
+              <i class="bi bi-clock"></i>
+              Retour prévu le {{ emprunt.dateFinPrevue | date:'dd MMMM yyyy':'':'fr' }}
+            </p>
+            </div>
+            <div *ngIf="!emprunt.estEnRetard">
+              <p class="date-retour">
+                <i class="bi bi-clock"></i>
+                Retour prévu le {{ emprunt.dateFinPrevue | date:'dd MMMM yyyy':'':'fr' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+      <!-- Historique -->
+      <h5 class="fw-bold mb-4">Historique</h5>
+      <div *ngIf="historique.length === 0">Aucun emprunt dans l'historique</div>
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+      <table *ngIf="historique.length > 0" class="table table-hover">
+        <thead>
+        <tr>
+          <th>LIVRE</th>
+          <th>DATE D'EMPRUNT</th>
+          <th>DATE DE RETOUR</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let emprunt of historique">
+          <td>
+            <div class="livre-cell">
+              <strong>{{ emprunt.livre.titre }}</strong>
+              <br>
+              <span class="auteur-small">{{ emprunt.livre.auteur }}</span>
+            </div>
+          </td>
+          <td>{{ emprunt.dateDebut | date:'dd MMMM yyyy':'':'fr' }}</td>
+          <td>{{ emprunt.dateFin | date:'dd MMMM yyyy':'':'fr' }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
