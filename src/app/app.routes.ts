@@ -6,8 +6,8 @@ export const routes: Routes = [
   // Futur Ajout de commentaire pour la page d'accueil/dashboard + login
 
   // route du catalogue
-   { path: 'catalogue', component: CatalogueComponent },
+   { path: 'books', component: CatalogueComponent },
   //route détails du livre
   { path: 'books/:id', component: livreDetailsComponent },
-  { path: '', redirectTo: '/catalogue', pathMatch: 'full' }
+  { path: '', redirectTo: '/dashboard', pathMatch: 'full' }
 ];
