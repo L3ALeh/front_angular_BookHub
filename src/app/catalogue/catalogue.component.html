@@ -2,7 +2,7 @@
   <div class="header-section mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
     <div>
       <h1 class="fw-bold h3 mb-0">Catalogue de livres</h1>
-      <p class="text-muted">Gérez et parcourez la collection</p>
+      <p class="text-muted">Gerez et parcourez la collection</p>
     </div>
 
     <button *ngIf="authService.hasRole('LIBRARIAN')"
@@ -90,17 +90,18 @@
       <div class="modal-body p-4">
         <form #addForm="ngForm">
           <div class="row g-3">
-            <div class="col-md-8">
+            <div class="col-md-6">
               <label class="form-label small fw-bold">Titre *</label>
               <input [(ngModel)]="nouveauLivre.titre" name="titre" class="form-control rounded-3" required type="text">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label small fw-bold">ISBN *</label>
-              <input [(ngModel)]="nouveauLivre.isbn" name="isbn" class="form-control rounded-3" required type="text">
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold">Auteur *</label>
               <input [(ngModel)]="nouveauLivre.auteur" name="auteur" class="form-control rounded-3" required type="text">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">ISBN *</label>
+              <input [(ngModel)]="nouveauLivre.isbn" name="isbn" class="form-control rounded-3" required type="text">
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold">Catégorie *</label>
@@ -110,17 +111,38 @@
                 <option value="AUTRE" class="text-primary fw-bold">+ Nouveau genre...</option>
               </select>
             </div>
-            <div class="col-md-6" *ngIf="nouveauLivre.categorie === 'AUTRE'">
+
+            <div class="col-md-12" *ngIf="nouveauLivre.categorie === 'AUTRE'">
               <label class="form-label small fw-bold text-primary">Nom du nouveau genre</label>
               <input [(ngModel)]="nouvelleCategorie" name="nouvelleCat" class="form-control border-primary rounded-3" type="text" required>
             </div>
-            <div class="col-md-4">
-              <label class="form-label small fw-bold">Stock Initial *</label>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Éditeur *</label>
+              <input [(ngModel)]="nouveauLivre.editeur" name="editeur" class="form-control rounded-3" required type="text">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Date de parution</label>
+              <input [(ngModel)]="nouveauLivre.dateParution" name="dateParution" class="form-control rounded-3" type="date">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Nb Pages</label>
+              <input [(ngModel)]="nouveauLivre.nbPages" name="nbPages" class="form-control rounded-3" type="number">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Stock Total *</label>
               <input [(ngModel)]="nouveauLivre.exemplaireTotal" name="exemplaireTotal" class="form-control rounded-3" type="number" min="1" required>
             </div>
-            <div class="col-md-8">
+
+            <div class="col-md-12">
               <label class="form-label small fw-bold">Lien de la couverture (URL)</label>
               <input [(ngModel)]="nouveauLivre.couverture" name="couverture" class="form-control rounded-3" type="text" placeholder="https://...">
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label small fw-bold">Description</label>
+              <textarea [(ngModel)]="nouveauLivre.description" name="description" class="form-control rounded-3" rows="3"></textarea>
             </div>
           </div>
         </form>
