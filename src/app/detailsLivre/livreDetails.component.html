@@ -109,6 +109,11 @@
   <div class="card border-0 shadow-sm rounded-4 p-4">
     <h5 class="fw-bold mb-4">Avis des lecteurs</h5>
 
+    <div *ngIf="authService.hasRole('LIBRARIAN')" class="alert alert-primary border-0 rounded-4 mb-4 small shadow-sm">
+      <i class="bi bi-shield-check me-2"></i>
+      Mode gestion : Vous pouvez modérer les commentaires en les supprimant si nécessaire.
+    </div>
+
     <div *ngIf="peutCommenter" class="bg-light p-4 rounded-4 mb-4">
       <h6 class="fw-bold mb-3">Votre avis</h6>
       <div class="mb-3">
@@ -130,18 +135,27 @@
       </div>
     </div>
 
-    <div *ngFor="let com of livre.commentaires" class="mb-3 p-3 border-bottom position-relative">
-      <button *ngIf="authService.hasRole('LIBRARIAN')" (click)="supprimerCommentaire(com.id)" class="btn btn-link text-danger position-absolute top-0 end-0 text-decoration-none">
-        Supprimer
-      </button>
-      <div class="d-flex align-items-center mb-1">
-        <span class="fw-bold small me-2">{{ com.pseudo }}</span>
-        <span class="text-warning small" *ngFor="let s of [1,2,3,4,5] | slice:0:com.note">
-          <i class="bi bi-star-fill"></i>
-        </span>
+    <div *ngIf="livre.commentaires && livre.commentaires.length > 0; else noComments">
+      <div *ngFor="let com of livre.commentaires" class="mb-3 p-3 border-bottom position-relative">
+        <button *ngIf="authService.hasRole('LIBRARIAN')" (click)="supprimerCommentaire(com.id)" class="btn btn-link text-danger position-absolute top-0 end-0 text-decoration-none">
+          Supprimer
+        </button>
+        <div class="d-flex align-items-center mb-1">
+          <span class="fw-bold small me-2">{{ com.pseudo }}</span>
+          <span class="text-warning small">
+            <i class="bi bi-star-fill" *ngFor="let s of [].constructor(com.note)"></i>
+          </span>
+        </div>
+        <p class="text-muted small mb-0">{{ com.texte }}</p>
       </div>
-      <p class="text-muted small mb-0">{{ com.texte }}</p>
     </div>
+
+    <ng-template #noComments>
+      <div class="text-center py-5">
+        <i class="bi bi-chat-left-dots text-muted fs-1 d-block mb-3"></i>
+        <p class="text-muted">Aucun commentaire déposé pour le moment.</p>
+      </div>
+    </ng-template>
   </div>
 </div>
 
