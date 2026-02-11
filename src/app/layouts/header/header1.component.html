@@ -1,9 +1,9 @@
-<header class="shadow-sm bg-white sticky-top">
-  <nav class="navbar navbar-expand-lg navbar-light container py-3">
+<header class="shadow-sm bg-body-tertiary sticky-top">
+  <nav class="navbar navbar-expand-lg container py-3">
     <div class="navbar-brand d-flex align-items-center">
       <img src="/logo-bookhub.png" alt="Logo" class="me-3" style="width: 40px; height: 40px;">
       <div class="d-flex flex-column">
-        <a routerLink="/" class="fw-bold h5 mb-0 d-none d-sm-block">Bibliothèque Quartier Solidaire</a>
+        <a routerLink="/" class="fw-bold h5 mb-0 d-none d-sm-block text-decoration-none text-reset">Bibliothèque Quartier Solidaire</a>
         <span class="fw-bold h5 mb-0 d-block d-sm-none">BookHub</span>
       </div>
     </div>
@@ -15,10 +15,14 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <div class="navbar-nav ms-auto align-items-lg-center gap-2">
 
+        <button (click)="themeService.toggleDarkMode()" class="btn btn-link nav-link px-3 text-secondary shadow-none" title="Changer le mode">
+          <i class="bi" [ngClass]="themeService.isDark() ? 'bi-sun-fill' : 'bi-moon-fill'"></i>
+        </button>
+
         <ng-container *ngIf="(isAuthenticated$ | async)">
           <a class="nav-link px-3" routerLink="/dashboard" routerLinkActive="active">Tableau de bord</a>
           <a class="nav-link px-3" routerLink="/books" routerLinkActive="active">Catalogue</a>
-          <a class="nav-link" routerLink="/api/loans">
+          <a class="nav-link px-3" routerLink="/api/loans" routerLinkActive="active">
             {{ authService.hasRole('LIBRARIAN') ? 'Gestion des flux' : 'Mes emprunts' }}</a>
           <a class="btn btn-outline-danger px-4 rounded-pill ms-lg-2" (click)="logout()">Déconnexion</a>
         </ng-container>

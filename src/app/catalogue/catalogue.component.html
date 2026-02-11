@@ -1,8 +1,9 @@
 <div class="container py-4">
+
   <div class="header-section mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
     <div>
-      <h1 class="fw-bold h3 mb-0">Catalogue de livres</h1>
-      <p class="text-muted">Gerez et parcourez la collection</p>
+      <h1 class="fw-bold h3 mb-0 text-body">Catalogue de livres</h1>
+      <p class="text-muted">Gérez et parcourez la collection</p>
     </div>
 
     <button *ngIf="authService.hasRole('LIBRARIAN')"
@@ -14,19 +15,19 @@
     </button>
   </div>
 
-  <div class="filter-container p-3 mb-5 bg-white rounded shadow-sm d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-3 border">
+  <div class="filter-container p-3 mb-5 bg-body-tertiary rounded shadow-sm d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-3 border">
     <div class="input-group flex-grow-1">
       <span class="input-group-text bg-transparent border-end-0 text-muted">
         <i class="bi bi-search"></i>
       </span>
       <input (input)="applyFilters()" [(ngModel)]="searchTerm"
-             class="form-control border-start-0 ps-0 shadow-none"
+             class="form-control border-start-0 ps-0 shadow-none bg-body text-body"
              placeholder="Rechercher par titre ou auteur..." type="text">
     </div>
 
     <div class="filter-controls-group d-flex align-items-center gap-2">
       <div class="dropdown flex-grow-1">
-        <button class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between gap-2 px-3 border bg-white text-dark"
+        <button class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between gap-2 px-3 border bg-body text-body"
                 data-bs-toggle="dropdown" type="button">
           <i class="bi bi-filter"></i> {{ selectedCategorie }}
         </button>
@@ -39,14 +40,14 @@
       </div>
       <div class="form-check form-switch d-flex align-items-center gap-2 mb-0 ms-3">
         <input (change)="applyFilters()" [(ngModel)]="onlyAvailable" class="form-check-input" id="dispoCheck" type="checkbox">
-        <label class="form-check-label text-nowrap small fw-medium" for="dispoCheck">Disponibles</label>
+        <label class="form-check-label text-nowrap small fw-medium text-body" for="dispoCheck">Disponibles</label>
       </div>
     </div>
   </div>
 
   <div *ngIf="livresFiltres.length > 0; else noBooks" class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
     <div *ngFor="let l of livresFiltres" class="col">
-      <div (click)="goToDetails(l.uuidLivre)" class="card h-100 border-0 shadow-sm book-card" style="cursor: pointer;">
+      <div (click)="goToDetails(l.uuidLivre)" class="card h-100 border shadow-sm book-card bg-body-tertiary" style="cursor: pointer;">
         <div class="position-relative">
           <img [src]="l.couverture || 'assets/placeholder.png'" class="card-img-top" style="height: 280px; object-fit: cover; border-radius: 8px 8px 0 0;">
           <span [ngClass]="l.exemplaireDisponible > 0 ? 'bg-success' : 'bg-danger'" class="badge position-absolute top-0 end-0 m-2 rounded-pill px-3 py-2">
@@ -54,7 +55,7 @@
           </span>
         </div>
         <div class="card-body p-3 d-flex flex-column">
-          <h2 class="card-title h6 fw-bold mb-0 text-truncate">{{ l.titre }}</h2>
+          <h2 class="card-title h6 fw-bold mb-0 text-truncate text-body">{{ l.titre }}</h2>
           <p class="text-muted mb-2 small">{{ l.auteur }}</p>
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="text-warning small"><i class="bi bi-star-fill me-1"></i>{{ (l.note || 0) | number:'1.1-1' }}</span>
@@ -62,7 +63,7 @@
           </div>
           <div class="mt-auto pt-2 border-top">
             <div class="d-flex justify-content-between align-items-center small">
-              <span [class.text-danger]="l.exemplaireDisponible === 0" class="fw-bold">
+              <span [class.text-danger]="l.exemplaireDisponible === 0" class="fw-bold text-body">
                 {{ l.exemplaireDisponible }} / {{ l.exemplaireTotal }} disponible(s)
               </span>
             </div>
@@ -82,30 +83,30 @@
 
 <div class="modal fade" id="addBookModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content border-0 shadow-lg rounded-4">
+    <div class="modal-content border-0 shadow-lg rounded-4 bg-body">
       <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title fw-bold">Ajouter un nouveau livre</h5>
+        <h5 class="modal-title fw-bold text-body">Ajouter un nouveau livre</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-4">
         <form #addForm="ngForm">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label small fw-bold">Titre *</label>
-              <input [(ngModel)]="nouveauLivre.titre" name="titre" class="form-control rounded-3" required type="text">
+              <label class="form-label small fw-bold text-body">Titre *</label>
+              <input [(ngModel)]="nouveauLivre.titre" name="titre" class="form-control rounded-3 bg-body text-body border" required type="text">
             </div>
             <div class="col-md-6">
-              <label class="form-label small fw-bold">Auteur *</label>
-              <input [(ngModel)]="nouveauLivre.auteur" name="auteur" class="form-control rounded-3" required type="text">
+              <label class="form-label small fw-bold text-body">Auteur *</label>
+              <input [(ngModel)]="nouveauLivre.auteur" name="auteur" class="form-control rounded-3 bg-body text-body border" required type="text">
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-bold">ISBN *</label>
-              <input [(ngModel)]="nouveauLivre.isbn" name="isbn" class="form-control rounded-3" required type="text">
+              <label class="form-label small fw-bold text-body">ISBN *</label>
+              <input [(ngModel)]="nouveauLivre.isbn" name="isbn" class="form-control rounded-3 bg-body text-body border" required type="text">
             </div>
             <div class="col-md-6">
-              <label class="form-label small fw-bold">Catégorie *</label>
-              <select [(ngModel)]="nouveauLivre.categorie" name="categorie" class="form-select rounded-3" required>
+              <label class="form-label small fw-bold text-body">Catégorie *</label>
+              <select [(ngModel)]="nouveauLivre.categorie" name="categorie" class="form-select rounded-3 bg-body text-body border" required>
                 <option value="" disabled>Sélectionner...</option>
                 <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
                 <option value="AUTRE" class="text-primary fw-bold">+ Nouveau genre...</option>
@@ -114,35 +115,35 @@
 
             <div class="col-md-12" *ngIf="nouveauLivre.categorie === 'AUTRE'">
               <label class="form-label small fw-bold text-primary">Nom du nouveau genre</label>
-              <input [(ngModel)]="nouvelleCategorie" name="nouvelleCat" class="form-control border-primary rounded-3" type="text" required>
+              <input [(ngModel)]="nouvelleCategorie" name="nouvelleCat" class="form-control border-primary rounded-3 bg-body text-body" type="text" required>
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-bold">Éditeur *</label>
-              <input [(ngModel)]="nouveauLivre.editeur" name="editeur" class="form-control rounded-3" required type="text">
+              <label class="form-label small fw-bold text-body">Éditeur *</label>
+              <input [(ngModel)]="nouveauLivre.editeur" name="editeur" class="form-control rounded-3 bg-body text-body border" required type="text">
             </div>
             <div class="col-md-6">
-              <label class="form-label small fw-bold">Date de parution</label>
-              <input [(ngModel)]="nouveauLivre.dateParution" name="dateParution" class="form-control rounded-3" type="date">
+              <label class="form-label small fw-bold text-body">Date de parution</label>
+              <input [(ngModel)]="nouveauLivre.dateParution" name="dateParution" class="form-control rounded-3 bg-body text-body border" type="date">
             </div>
 
             <div class="col-md-6">
-              <label class="form-label small fw-bold">Nb Pages</label>
-              <input [(ngModel)]="nouveauLivre.nbPages" name="nbPages" class="form-control rounded-3" type="number">
+              <label class="form-label small fw-bold text-body">Nb Pages</label>
+              <input [(ngModel)]="nouveauLivre.nbPages" name="nbPages" class="form-control rounded-3 bg-body text-body border" type="number">
             </div>
             <div class="col-md-6">
-              <label class="form-label small fw-bold">Stock Total *</label>
-              <input [(ngModel)]="nouveauLivre.exemplaireTotal" name="exemplaireTotal" class="form-control rounded-3" type="number" min="1" required>
-            </div>
-
-            <div class="col-md-12">
-              <label class="form-label small fw-bold">Lien de la couverture (URL)</label>
-              <input [(ngModel)]="nouveauLivre.couverture" name="couverture" class="form-control rounded-3" type="text" placeholder="https://...">
+              <label class="form-label small fw-bold text-body">Stock Total *</label>
+              <input [(ngModel)]="nouveauLivre.exemplaireTotal" name="exemplaireTotal" class="form-control rounded-3 bg-body text-body border" type="number" min="1" required>
             </div>
 
             <div class="col-md-12">
-              <label class="form-label small fw-bold">Description</label>
-              <textarea [(ngModel)]="nouveauLivre.description" name="description" class="form-control rounded-3" rows="3"></textarea>
+              <label class="form-label small fw-bold text-body">Lien de la couverture (URL)</label>
+              <input [(ngModel)]="nouveauLivre.couverture" name="couverture" class="form-control rounded-3 bg-body text-body border" type="text" placeholder="https://...">
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label small fw-bold text-body">Description</label>
+              <textarea [(ngModel)]="nouveauLivre.description" name="description" class="form-control rounded-3 bg-body text-body border" rows="3"></textarea>
             </div>
           </div>
         </form>

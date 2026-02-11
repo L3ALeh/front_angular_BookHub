@@ -10,3 +10,54 @@ body {
   background-color: #F8F8F8;
   font-family: Arial, sans-serif;
 }
+/* --- CONFIGURATION GLOBALE DARK MODE --- */
+
+/* Applique la couleur de fond et de texte sur toute la page */
+body {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  /* Transition douce pour ne pas agresser les yeux lors du switch */
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* S'assure que le contenu principal prend tout l'espace pour pousser le footer en bas */
+app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* --- AJUSTEMENTS POUR LES ÉLÉMENTS BOOTSTRAP --- */
+
+/* En mode sombre, on adoucit les bordures pour qu'elles ne soient pas trop blanches */
+[data-bs-theme="dark"] .border,
+[data-bs-theme="dark"] .border-top,
+[data-bs-theme="dark"] .border-bottom {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Évite que les images de livres ne soient trop lumineuses la nuit */
+[data-bs-theme="dark"] img {
+  filter: brightness(0.8) contrast(1.1);
+}
+
+/* Fix pour les ombres des cartes en mode sombre */
+[data-bs-theme="dark"] .shadow-sm {
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,.5) !important;
+}
+
+/* Fix pour les barres de défilement (Scrollbars) en mode sombre */
+[data-bs-theme="dark"] ::-webkit-scrollbar {
+  width: 12px;
+}
+[data-bs-theme="dark"] ::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+[data-bs-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 6px;
+  border: 3px solid #1e1e1e;
+}

@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from "@angular/router";
-import { AsyncPipe, NgIf } from '@angular/common';
+import {AsyncPipe, NgClass, NgIf} from '@angular/common';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
+import {ThemeService} from '../../services/theme.service';
 
 @Component({
   selector: 'app-header1',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, NgIf, AsyncPipe],
+  imports: [RouterLink, RouterLinkActive, NgIf, AsyncPipe, NgClass],
   templateUrl: './header1.component.html',
   styleUrl: './header1.component.css'
 })
@@ -17,6 +18,7 @@ export class Header1Component {
 
   constructor(
     public authService: AuthService,
+    public themeService: ThemeService,
     private router: Router
   ) {
     this.isAuthenticated$ = this.authService.isAuthenticated$;

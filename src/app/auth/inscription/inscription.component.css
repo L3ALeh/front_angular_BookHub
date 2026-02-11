@@ -1,93 +1,138 @@
+/* Conteneur principal */
 .inscription-container {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #F8F8F8;
+  /* Utilise la couleur de fond dynamique de Bootstrap */
+  background-color: var(--bs-body-bg);
+  transition: background-color 0.3s ease;
+  padding: 1rem;
 }
 
+/* Carte d'inscription */
 .inscription-card {
-  background-color: #fff;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  /* Fond adaptatif (blanc en light, gris foncé en dark) */
+  background-color: var(--bs-body-tertiary-bg);
+  padding: 2.5rem;
+  border-radius: 16px;
+  /* Bordure subtile pour le mode sombre */
+  border: 1px solid var(--bs-border-color);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
   text-align: center;
 }
 
+/* Logo */
 .logo-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  flex-shrink: 0;
+  justify-content: center;
+  background-color: white; /* Garde un fond blanc pour le logo */
+  padding: 12px;
+  border-radius: 14px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .logo-icon {
-  width: 75px;
+  width: 70px;
   height: auto;
 }
 
+/* Titres */
 .title {
-  font-size: 1.5rem;
-  color: #333;
-  margin-bottom: 0.25rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--bs-body-color);
+  margin-bottom: 0.5rem;
 }
 
 .subtitle {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: var(--bs-secondary-color);
+  margin-bottom: 2rem;
 }
 
+/* Formulaire */
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   text-align: left;
 }
 
 .form-group label {
   display: block;
-  font-size: 0.9rem;
-  margin-bottom: 0.25rem;
-  color: #333;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--bs-body-color);
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+  /* Couleurs d'input adaptatives */
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 8px;
   font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #0088FF;
+  box-shadow: 0 0 0 3px rgba(0, 136, 255, 0.15);
+}
+
+/* Bouton */
 button {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.85rem;
+  margin-top: 1rem;
   background-color: #0088FF;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
 }
 
 button:hover {
-  background-color: #006FCC;
+  background-color: #0077EE;
 }
 
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  background-color: var(--bs-secondary-bg);
+  color: var(--bs-secondary-color);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Liens et messages */
 .text-center {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
 .text-center a {
   color: #0088FF;
+  font-size: 0.9rem;
+  font-weight: 500;
   text-decoration: none;
 }
 
@@ -96,6 +141,8 @@ button:hover {
 }
 
 .message {
-  margin-top: 10px;
-  color: red; /* rouge pour les erreurs, tu peux changer si succès */
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
 }

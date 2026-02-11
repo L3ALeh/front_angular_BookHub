@@ -1,23 +1,68 @@
+/* Tailles de police personnalisées */
 .extra-small {
   font-size: 0.7rem;
 }
 
+/* Arrondis personnalisés */
 .rounded-4 {
   border-radius: 1.25rem !important;
 }
 
 .card {
   border-radius: 12px;
+  /* Optionnel : assure une transition douce lors du changement de thème */
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+/* --- ADAPTATION DARK MODE --- */
+
+/* Alerte de retard : on utilise les couleurs de Bootstrap qui gèrent le contraste */
 .alert-danger {
-  background-color: #FFF2F2;
+  /* Supprime le background-color fixe pour laisser Bootstrap gérer le mode sombre */
+  border: none;
+  box-shadow: 0 4px 6px rgba(220, 53, 69, 0.1);
 }
 
+/* Remplacement du bg-light fixe par une couleur système */
 .bg-light {
-  background-color: #F8F9FA !important;
+  /* var(--bs-tertiary-bg) est l'équivalent de light en mode clair et d'un gris anthracite en mode sombre */
+  background-color: var(--bs-tertiary-bg) !important;
+  color: var(--bs-body-color) !important;
 }
 
+/* Gestion des espacements dans les listes (vstack) */
 .vstack .d-flex {
   padding-bottom: 8px;
+  /* On utilise la variable de bordure pour les lignes de séparation */
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.vstack .d-flex:last-child {
+  border-bottom: none;
+}
+
+/* Correction pour les badges et icônes d'administration */
+.progress {
+  /* Fond de la barre de progression adapté */
+  background-color: var(--bs-secondary-bg);
+}
+
+/* Assure que les textes muets restent lisibles */
+.text-muted {
+  color: var(--bs-secondary-color) !important;
+}
+
+/* --- STYLES SPÉCIFIQUES AUX CARTES DU DASHBOARD --- */
+
+[data-bs-theme="dark"] .card {
+  /* En mode sombre, on ajoute une bordure très légère pour détacher la carte du fond */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--bs-body-tertiary-bg);
+}
+
+/* Correction pour les images/couvertures en mode sombre */
+[data-bs-theme="dark"] .bg-white.rounded-3 {
+  /* Les petits cadres blancs derrière les livres dans tes listes */
+  background-color: var(--bs-secondary-bg) !important;
+  border-color: var(--bs-border-color) !important;
 }

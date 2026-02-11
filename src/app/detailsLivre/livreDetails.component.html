@@ -1,11 +1,11 @@
 <div *ngIf="livre" class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <button class="btn btn-link text-dark p-0 text-decoration-none" routerLink="/books">
+    <button class="btn btn-link text-body p-0 text-decoration-none" routerLink="/books">
       <i class="bi bi-arrow-left"></i> Retour au catalogue
     </button>
 
     <div *ngIf="authService.hasRole('LIBRARIAN')" class="d-flex gap-2">
-      <button class="btn btn-outline-dark rounded-3 px-3" data-bs-toggle="modal" data-bs-target="#editBookModal">
+      <button class="btn btn-outline-secondary rounded-3 px-3" data-bs-toggle="modal" data-bs-target="#editBookModal">
         Modifier
       </button>
       <button (click)="supprimerLivre()" class="btn btn-outline-danger rounded-3 px-3">
@@ -14,7 +14,7 @@
     </div>
   </div>
 
-  <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+  <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-body-tertiary">
     <div class="row g-4">
       <div class="col-md-4 col-lg-3">
         <img [alt]="livre.titre" [src]="livre.couverture || 'assets/placeholder.png'"
@@ -27,7 +27,7 @@
             <span [ngClass]="livre.exemplaireDisponible > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'" class="badge rounded-pill px-3 mb-2">
               {{ livre.exemplaireDisponible > 0 ? 'Disponible' : 'Indisponible' }}
             </span>
-            <h1 class="h2 fw-bold mb-1">{{ livre.titre }}</h1>
+            <h1 class="h2 fw-bold mb-1 text-body">{{ livre.titre }}</h1>
             <p class="text-muted mb-2 fs-5">par {{ livre.auteur }}</p>
 
             <div class="d-flex align-items-center gap-2 mb-3">
@@ -35,7 +35,7 @@
                 <i *ngFor="let s of [1,2,3,4,5]"
                    [class]="(livre.note || 0) >= s ? 'bi bi-star-fill' : ((livre.note || 0) >= s - 0.5 ? 'bi bi-star-half' : 'bi bi-star')"></i>
               </div>
-              <span class="fw-bold text-dark">{{ livre.note || 0 }}</span>
+              <span class="fw-bold text-body">{{ livre.note || 0 }}</span>
               <span class="text-muted small">({{ livre.commentaires?.length || 0 }} avis)</span>
             </div>
           </div>
@@ -75,69 +75,69 @@
           </div>
         </div>
 
-        <div class="bg-light rounded-4 p-4 mb-4">
+        <div class="bg-body border rounded-4 p-4 mb-4">
           <div class="row g-4">
             <div class="col-sm-6 col-md-4">
               <label class="text-muted small d-block mb-1">Titre</label>
-              <span class="fw-semibold text-dark">{{ livre.titre }}</span>
+              <span class="fw-semibold text-body">{{ livre.titre }}</span>
             </div>
             <div class="col-sm-6 col-md-4">
               <label class="text-muted small d-block mb-1">Auteur</label>
-              <span class="fw-semibold text-dark">{{ livre.auteur }}</span>
+              <span class="fw-semibold text-body">{{ livre.auteur }}</span>
             </div>
             <div class="col-sm-6 col-md-4">
               <label class="text-muted small d-block mb-1">ISBN</label>
-              <span class="fw-semibold text-dark">{{ livre.isbn }}</span>
+              <span class="fw-semibold text-body">{{ livre.isbn }}</span>
             </div>
             <div class="col-sm-6 col-md-4">
               <label class="text-muted small d-block mb-1">Catégorie</label>
-              <span class="fw-semibold text-dark">{{ livre.categorie }}</span>
+              <span class="fw-semibold text-body">{{ livre.categorie }}</span>
             </div>
             <div class="col-sm-6 col-md-4">
               <label class="text-muted small d-block mb-1">Éditeur</label>
-              <span class="fw-semibold text-dark">{{ livre.editeur }}</span>
+              <span class="fw-semibold text-body">{{ livre.editeur }}</span>
             </div>
             <div class="col-sm-6 col-md-4">
               <label class="text-muted small d-block mb-1">Nombre de pages</label>
-              <span class="fw-semibold text-dark">{{ livre.page }}</span>
+              <span class="fw-semibold text-body">{{ livre.page }}</span>
             </div>
             <div class="col-sm-6 col-md-4">
               <label class="text-muted small d-block mb-1">Date de parution</label>
-              <span class="fw-semibold text-dark">{{ livre.datePublication }}</span>
+              <span class="fw-semibold text-body">{{ livre.datePublication }}</span>
             </div>
           </div>
         </div>
 
-        <h6 class="fw-bold mb-2">Description</h6>
+        <h6 class="fw-bold mb-2 text-body">Description</h6>
         <p class="text-muted lh-lg mb-0 small">{{ livre.description || 'Aucune description disponible.' }}</p>
       </div>
     </div>
   </div>
 
-  <div class="card border-0 shadow-sm rounded-4 p-4">
-    <h5 class="fw-bold mb-4">Avis des lecteurs</h5>
+  <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary">
+    <h5 class="fw-bold mb-4 text-body">Avis des lecteurs</h5>
 
     <div *ngIf="authService.hasRole('LIBRARIAN')" class="alert alert-primary border-0 rounded-4 mb-4 small shadow-sm">
       <i class="bi bi-shield-check me-2"></i>
       Mode gestion : Vous pouvez modérer les commentaires en les supprimant si nécessaire.
     </div>
 
-    <div *ngIf="peutCommenter" class="bg-light p-4 rounded-4 mb-4">
-      <h6 class="fw-bold mb-3">Votre avis</h6>
+    <div *ngIf="peutCommenter" class="bg-body border p-4 rounded-4 mb-4">
+      <h6 class="fw-bold mb-3 text-body">Votre avis</h6>
       <div class="mb-3">
         <div class="d-flex gap-1 fs-3 text-warning">
           <i *ngFor="let s of [1,2,3,4,5]" (mouseenter)="setHover(s)" (mouseleave)="setHover(0)" (click)="noter(s)"
              [class]="(noteSurvolee || noteSelectionnee) >= s ? 'bi bi-star-fill' : 'bi bi-star'" style="cursor: pointer;"></i>
         </div>
       </div>
-      <textarea [(ngModel)]="nouveauCommentaire" class="form-control rounded-3 mb-3 border-0 shadow-sm" rows="3" placeholder="Partagez votre avis..."></textarea>
+      <textarea [(ngModel)]="nouveauCommentaire" class="form-control rounded-3 mb-3 border shadow-sm bg-body text-body" rows="3" placeholder="Partagez votre avis..."></textarea>
       <button (click)="publierAvis()" class="btn btn-primary rounded-pill px-5" [disabled]="!nouveauCommentaire || noteSelectionnee === 0">
         Publier l'avis
       </button>
     </div>
 
-    <div *ngIf="!peutCommenter && !authService.hasRole('LIBRARIAN')" class="alert alert-light border rounded-4 mb-4">
-      <div class="d-flex align-items-center text-muted">
+    <div *ngIf="!peutCommenter && !authService.hasRole('LIBRARIAN')" class="alert alert-light border rounded-4 mb-4 text-dark">
+      <div class="d-flex align-items-center">
         <i class="bi bi-lock-fill me-2 fs-4"></i>
         <span>Vous pourrez laisser un avis et une note une fois que vous aurez <strong>lu et rendu</strong> cet ouvrage.</span>
       </div>
@@ -149,7 +149,7 @@
           Supprimer
         </button>
         <div class="d-flex align-items-center mb-1">
-          <span class="fw-bold small me-2">{{ com.pseudo }}</span>
+          <span class="fw-bold small me-2 text-body">{{ com.pseudo }}</span>
           <span class="text-warning small">
             <i class="bi bi-star-fill" *ngFor="let s of [].constructor(com.note)"></i>
           </span>
@@ -169,29 +169,29 @@
 
 <div class="modal fade" id="editBookModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
-    <div class="modal-content rounded-4 border-0 shadow">
+    <div class="modal-content rounded-4 border-0 shadow bg-body">
       <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title fw-bold">Modifier l'ouvrage</h5>
+        <h5 class="modal-title fw-bold text-body">Modifier l'ouvrage</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" *ngIf="livre">
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="small fw-bold mb-1">Titre *</label>
-            <input type="text" class="form-control" [(ngModel)]="livre.titre">
+            <label class="small fw-bold mb-1 text-body">Titre *</label>
+            <input type="text" class="form-control bg-body text-body border" [(ngModel)]="livre.titre">
           </div>
           <div class="col-md-6">
-            <label class="small fw-bold mb-1">Auteur *</label>
-            <input type="text" class="form-control" [(ngModel)]="livre.auteur">
+            <label class="small fw-bold mb-1 text-body">Auteur *</label>
+            <input type="text" class="form-control bg-body text-body border" [(ngModel)]="livre.auteur">
           </div>
           <div class="col-md-6">
-            <label class="small fw-bold mb-1">ISBN</label>
-            <input type="text" class="form-control" [(ngModel)]="livre.isbn">
+            <label class="small fw-bold mb-1 text-body">ISBN</label>
+            <input type="text" class="form-control bg-body text-body border" [(ngModel)]="livre.isbn">
           </div>
 
           <div class="col-md-6">
-            <label class="small fw-bold mb-1">Catégorie *</label>
-            <select class="form-select" [(ngModel)]="livre.categorie">
+            <label class="small fw-bold mb-1 text-body">Catégorie *</label>
+            <select class="form-select bg-body text-body border" [(ngModel)]="livre.categorie">
               <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
               <option value="NEW_CAT" class="text-primary fw-bold">+ Ajouter une nouvelle catégorie...</option>
             </select>
@@ -200,41 +200,41 @@
           <div class="col-12" *ngIf="livre.categorie === 'NEW_CAT'">
             <div class="alert alert-info py-2 px-3 mb-0">
               <label class="small fw-bold mb-1">Nom de la nouvelle catégorie</label>
-              <input type="text" class="form-control border-primary" [(ngModel)]="nouvelleCategorieSaisie" placeholder="Ex: Manga, Cuisine...">
+              <input type="text" class="form-control border-primary bg-body text-body" [(ngModel)]="nouvelleCategorieSaisie" placeholder="Ex: Manga, Cuisine...">
             </div>
           </div>
 
           <div class="col-md-6">
-            <label class="small fw-bold mb-1">Éditeur *</label>
-            <input type="text" class="form-control" [(ngModel)]="livre.editeur">
+            <label class="small fw-bold mb-1 text-body">Éditeur *</label>
+            <input type="text" class="form-control bg-body text-body border" [(ngModel)]="livre.editeur">
           </div>
           <div class="col-md-6">
-            <label class="small fw-bold mb-1">Date de parution</label>
-            <input type="date" class="form-control" [(ngModel)]="livre.datePublication">
+            <label class="small fw-bold mb-1 text-body">Date de parution</label>
+            <input type="date" class="form-control bg-body text-body border" [(ngModel)]="livre.datePublication">
           </div>
           <div class="col-md-3">
-            <label class="small fw-bold mb-1">Nb Pages</label>
-            <input type="number" class="form-control" [(ngModel)]="livre.page">
+            <label class="small fw-bold mb-1 text-body">Nb Pages</label>
+            <input type="number" class="form-control bg-body text-body border" [(ngModel)]="livre.page">
           </div>
           <div class="col-md-3">
-            <label class="small fw-bold mb-1">Stock Total *</label>
-            <input type="number" class="form-control" [(ngModel)]="livre.exemplaireTotal">
+            <label class="small fw-bold mb-1 text-body">Stock Total *</label>
+            <input type="number" class="form-control bg-body text-body border" [(ngModel)]="livre.exemplaireTotal">
           </div>
           <div class="col-md-3">
-            <label class="small fw-bold mb-1">Disponibles</label>
-            <input type="number" class="form-control" [(ngModel)]="livre.exemplaireDisponible">
+            <label class="small fw-bold mb-1 text-body">Disponibles</label>
+            <input type="number" class="form-control bg-body text-body border" [(ngModel)]="livre.exemplaireDisponible">
           </div>
           <div class="col-md-3">
-            <label class="small fw-bold mb-1">Date d'ajout</label>
-            <input type="text" class="form-control" [(ngModel)]="livre.dateAjout" readonly disabled>
+            <label class="small fw-bold mb-1 text-body">Date d'ajout</label>
+            <input type="text" class="form-control bg-body-secondary text-body" [(ngModel)]="livre.dateAjout" readonly disabled>
           </div>
           <div class="col-12">
-            <label class="small fw-bold mb-1">Lien Couverture (URL)</label>
-            <input type="text" class="form-control" [(ngModel)]="livre.couverture">
+            <label class="small fw-bold mb-1 text-body">Lien Couverture (URL)</label>
+            <input type="text" class="form-control bg-body text-body border" [(ngModel)]="livre.couverture">
           </div>
           <div class="col-12">
-            <label class="small fw-bold mb-1">Description</label>
-            <textarea class="form-control" rows="4" [(ngModel)]="livre.description"></textarea>
+            <label class="small fw-bold mb-1 text-body">Description</label>
+            <textarea class="form-control bg-body text-body border" rows="4" [(ngModel)]="livre.description"></textarea>
           </div>
         </div>
       </div>
