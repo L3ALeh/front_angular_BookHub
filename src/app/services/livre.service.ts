@@ -24,11 +24,12 @@ export class LivreService {
     return this.http.get<Livre>(`${this.apiUrl}/${uuid}`);
   }
 
-  checkIfUserReadBook(uuid: string, userId: string): Observable<boolean> {
-    const params = new HttpParams().set('userId', userId);
-    return this.http.get<boolean>(`${this.apiUrl}/check-lecture/${uuid}`, {params});
+  checkIfUserReadBook(uuidLivre: string, userId: string): Observable<boolean> {
+    // Utilise empruntUrl (/api/loans) au lieu de apiUrl (/api/books)
+    return this.http.get<boolean>(`${this.empruntUrl}/${uuidLivre}/can-comment`, {
+      params: { userId: userId }
+    });
   }
-
   addLivre(livre: any): Observable<Livre> {
     return this.http.post<Livre>(`${this.apiUrl}`, livre);
   }

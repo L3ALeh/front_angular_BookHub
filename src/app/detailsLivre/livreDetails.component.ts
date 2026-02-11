@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class livreDetailsComponent implements OnInit {
   livre: Livre | null = null;
-  errorMessage: string = ''; // AJOUT : Pour afficher l'erreur anti-doublon
+  errorMessage: string = '';
 
   categories: string[] = ['Science-Fiction', 'Roman', 'Poésie', 'Jeunesse', 'Histoire', 'Philosophie', 'Fantastique', 'Biographie'];
   nouvelleCategorieSaisie: string = "";

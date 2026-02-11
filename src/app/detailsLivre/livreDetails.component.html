@@ -108,6 +108,7 @@
 
   <div class="card border-0 shadow-sm rounded-4 p-4">
     <h5 class="fw-bold mb-4">Avis des lecteurs</h5>
+
     <div *ngIf="peutCommenter" class="bg-light p-4 rounded-4 mb-4">
       <h6 class="fw-bold mb-3">Votre avis</h6>
       <div class="mb-3">
@@ -120,6 +121,13 @@
       <button (click)="publierAvis()" class="btn btn-primary rounded-pill px-5" [disabled]="!nouveauCommentaire || noteSelectionnee === 0">
         Publier l'avis
       </button>
+    </div>
+
+    <div *ngIf="!peutCommenter && !authService.hasRole('LIBRARIAN')" class="alert alert-light border rounded-4 mb-4">
+      <div class="d-flex align-items-center text-muted">
+        <i class="bi bi-lock-fill me-2 fs-4"></i>
+        <span>Vous pourrez laisser un avis et une note une fois que vous aurez <strong>lu et rendu</strong> cet ouvrage.</span>
+      </div>
     </div>
 
     <div *ngFor="let com of livre.commentaires" class="mb-3 p-3 border-bottom position-relative">
