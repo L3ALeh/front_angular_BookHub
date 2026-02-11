@@ -16,7 +16,7 @@ export interface Emprunt {
 @Injectable({ providedIn: 'root' })
 export class EmpruntService {
   private apiUrl = 'http://localhost:8080/api/loans';
-
+  private reservUrl = 'http://localhost:8080/api/reservations'; // Assure-toi que c'est bien reservations
   constructor(private http: HttpClient) {}
 
   // bouton "Emprunter" du livre
@@ -32,15 +32,30 @@ export class EmpruntService {
 
   //historique du lecteur
   getHistorique(userId: string): Observable<Emprunt[]> {
-    return this.http.get<Emprunt[]>(`${this.apiUrl}/utilisateur/${userId}/historique`);
+    // L'URL devient simple, le serveur utilise le Token pour savoir qui tu es
+    return this.http.get<Emprunt[]>(`${this.apiUrl}/utilisateur/historique`);
   }
 
   getEmpruntsEnCours(userId: string): Observable<Emprunt[]> {
-    return this.http.get<any>(`${this.apiUrl}/utilisateur/${userId}/actifs`).pipe(
+    return this.http.get<any>(`${this.apiUrl}/utilisateur/actifs`).pipe(
       map(res => Array.isArray(res) ? res : (res.content || []))
     );
   }
   getAllEmpruntsGlobal(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/admin/all`);
+  }
+
+  reserverLivre(uuidLivre: string): Observable<any> {
+    // L'appel POST doit correspondre à @PostMapping("/{uuidLivre}") du Java
+    return this.http.post(`${this.reservUrl}/${uuidLivre}`, {});
+  }
+
+  getMesReservations(): Observable<any[]> {
+    // REMPLACÉ this.apiUrl PAR this.reservUrl
+    return this.http.get<any[]>(`${this.reservUrl}/my`);
+  }
+
+  annulerReservation(idReservation: string): Observable<any> {
+    return this.http.delete(`${this.reservUrl}/${idReservation}`);
   }
 }

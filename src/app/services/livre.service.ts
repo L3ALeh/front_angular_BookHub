@@ -24,11 +24,10 @@ export class LivreService {
     return this.http.get<Livre>(`${this.apiUrl}/${uuid}`);
   }
 
+  // Dans livre.service.ts
   checkIfUserReadBook(uuidLivre: string, userId: string): Observable<boolean> {
-    // Utilise empruntUrl (/api/loans) au lieu de apiUrl (/api/books)
-    return this.http.get<boolean>(`${this.empruntUrl}/${uuidLivre}/can-comment`, {
-      params: { userId: userId }
-    });
+    // On ne passe plus le userId, le Token suffit !
+    return this.http.get<boolean>(`${this.empruntUrl}/${uuidLivre}/can-comment`);
   }
   addLivre(livre: any): Observable<Livre> {
     return this.http.post<Livre>(`${this.apiUrl}`, livre);

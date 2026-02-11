@@ -16,7 +16,7 @@
         {{ authService.hasRole('LIBRARIAN') ? 'Tous les emprunts' : 'Mes emprunts' }} ({{ empruntsEnCours.length }})
       </button>
       <button class="onglet" [class.actif]="ongletActif === 'reservation'" (click)="changerOnglet('reservation')">
-        {{ authService.hasRole('LIBRARIAN') ? 'Toutes les réservations' : 'Mes réservations' }} (0)
+        {{ authService.hasRole('LIBRARIAN') ? 'Toutes les réservations' : 'Mes réservations' }} ({{ mesReservations.length }})
       </button>
     </div>
   </div>
@@ -116,6 +116,53 @@
         </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <div *ngIf="ongletActif === 'reservation'">
+    <h5 class="fw-bold mb-4">
+      {{ authService.hasRole('LIBRARIAN') ? 'Réservations actives dans la bibliothèque' : 'Mes réservations' }}
+    </h5>
+
+    <div *ngIf="!mesReservations || mesReservations.length === 0" class="alert alert-light border rounded-4 text-center py-5">
+      <i class="bi bi-calendar-x mb-2 fs-1 d-block text-muted"></i>
+      Aucune réservation en attente.
+    </div>
+
+    <div *ngFor="let res of mesReservations" class="mb-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <div class="row g-4 align-items-center">
+          <div class="col-md-2">
+            <img [alt]="res.livre?.titre"
+                 [src]="res.livre?.couverture || 'assets/placeholder.png'"
+                 class="img-fluid rounded-3 shadow-sm w-100"
+                 style="object-fit: cover; max-height: 200px;">
+          </div>
+          <div class="col-md-7">
+            <div *ngIf="authService.hasRole('LIBRARIAN')" class="mb-2">
+              <span class="badge bg-light text-dark border">
+                <i class="bi bi-person-fill"></i> Lecteur : {{ res.utilisateur?.prenom }} {{ res.utilisateur?.nom }}
+              </span>
+            </div>
+            <h6 class="fw-semibold text-dark fs-5 mb-1">{{ res.livre?.titre }}</h6>
+            <p class="text-muted mb-2">{{ res.livre?.auteur }}</p>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-warning text-dark px-3 rounded-pill">
+                Rang d'attente : {{ res.rang }}
+              </span>
+              <span class="text-muted small">Demandé le {{ res.dateReservation | date:'dd/MM/yyyy' }}</span>
+            </div>
+          </div>
+          <div class="col-md-3 text-md-end">
+            <button *ngIf="!authService.hasRole('LIBRARIAN')"
+                    (click)="annulerReservation(res.idReservation)"
+                    class="btn btn-outline-danger btn-sm rounded-pill px-4">
+              Annuler la réservation
+            </button>
+            <span *ngIf="authService.hasRole('LIBRARIAN')" class="badge bg-info text-dark">Priorité {{ res.rang }}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

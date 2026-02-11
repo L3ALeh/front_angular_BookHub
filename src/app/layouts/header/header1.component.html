@@ -18,7 +18,8 @@
         <ng-container *ngIf="(isAuthenticated$ | async)">
           <a class="nav-link px-3" routerLink="/dashboard" routerLinkActive="active">Tableau de bord</a>
           <a class="nav-link px-3" routerLink="/books" routerLinkActive="active">Catalogue</a>
-          <a class="nav-link px-3" routerLink="/api/loans" routerLinkActive="active">Mes emprunts</a>
+          <a class="nav-link" routerLink="/api/loans">
+            {{ authService.hasRole('LIBRARIAN') ? 'Gestion des flux' : 'Mes emprunts' }}</a>
           <a class="btn btn-outline-danger px-4 rounded-pill ms-lg-2" (click)="logout()">Déconnexion</a>
         </ng-container>
 

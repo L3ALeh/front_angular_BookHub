@@ -48,50 +48,33 @@ export class DashboardComponent implements OnInit {
 
   chargerDonnees() {
     const aujourdhui = new Date();
-    aujourdhui.setHours(0, 0, 0, 0);
-    const userId = this.authService.getUserId();
+    const isAdmin = this.authService.hasRole('LIBRARIAN');
 
-    this.empruntService.getAllEmpruntsGlobal().subscribe({
-      next: (data: any) => {
-        console.log("Structure détectée :", data);
+    if (isAdmin) {
+      this.empruntService.getAllEmpruntsGlobal().subscribe({
+        next: (data: any) => this.traiterDonneesAdmin(data, aujourdhui)
+      });
+    } else {
+      const userId = this.authService.getUserId();
+      if (userId) {
+        // 1. Charger les emprunts
+        this.empruntService.getEmpruntsEnCours(userId).subscribe({
+          next: (data: any[]) => {
+            this.mesEmprunts = data.map(e => this.enrichir(e, aujourdhui));
+            this.retardsLecteur = this.mesEmprunts.filter(e => e.joursRetard > 0).length;
+          }
+        });
 
-        const listeBrute: EmpruntBrut[] = [
-          ...(data.enCours || []),
-          ...(data.historique || []),
-          ...(data.enRetard || [])
-        ];
-
-        const livresExtraits: Livre[] = listeBrute
-          .filter(e => e && e.livre)
-          .map(e => e.livre);
-
-        this.livres = Array.from(new Map(livresExtraits.map(l => [l.uuidLivre || (l as any).id, l])).values());
-
-        this.calculerStatsGlobales();
-
-        if (userId) {
-          // Emprunts réellement en cours
-          this.mesEmprunts = (data.enCours || [])
-            .filter((e: any) => (e.utilisateur?.uuidUtilisateur || e.uuidUtilisateur) === userId)
-            .map((e: any) => this.enrichir(e, aujourdhui));
-
-          this.mesReservations = (data.enCours || data.reservations || [])
-            .filter((e: any) => {
-              const idOwner = e.utilisateur?.uuidUtilisateur || e.uuidUtilisateur;
-              return idOwner === userId && e.statut === 'RESERVE'; // UNIQUEMENT les réservations
-            });
-
-          const monHistorique = (data.historique || [])
-            .filter((e: any) => (e.utilisateur?.uuidUtilisateur || e.uuidUtilisateur) === userId);
-
-          this.retardsLecteur = (data.enRetard || [])
-            .filter((e: any) => (e.utilisateur?.uuidUtilisateur || e.uuidUtilisateur) === userId).length;
-        }
-      },
-      error: (err) => console.error('Erreur API :', err)
-    });
+        // 2. Charger les réservations
+        this.empruntService.getMesReservations().subscribe({
+          next: (reservations) => {
+            this.mesReservations = reservations;
+            this.reservationsLecteur = reservations.length;
+          }
+        });
+      }
+    }
   }
-
   private enrichir(e: any, aujourdhui: Date) {
     const d = e.dateFinPrevue || e.date_fin_prevue;
     if (!d) return { ...e, joursRestants: 0, joursRetard: 0 };
@@ -107,14 +90,6 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  private calculerStatsGlobales() {
-    this.stats.totalOuvrages = this.livres.length;
-    this.stats.totalExemplaires = this.livres.reduce((acc, l) => acc + (l.exemplaireTotal || 0), 0);
-    const dispos = this.livres.reduce((acc, l) => acc + (l.exemplaireDisponible || 0), 0);
-    this.stats.enCirculation = this.stats.totalExemplaires - dispos;
-    this.stats.tauxOccupation = this.stats.totalExemplaires > 0
-      ? Math.round((this.stats.enCirculation / this.stats.totalExemplaires) * 100) : 0;
-  }
 
   get topLivres() {
     if (!this.livres || this.livres.length === 0) return [];
@@ -122,5 +97,29 @@ export class DashboardComponent implements OnInit {
       .sort((a, b) => ((b.exemplaireTotal || 0) - (b.exemplaireDisponible || 0)) -
         ((a.exemplaireTotal || 0) - (a.exemplaireDisponible || 0)))
       .slice(0, 5);
+  }
+
+  private traiterDonneesAdmin(data: any, aujourdhui: Date) {
+    const tous = [...(data.enCours || []), ...(data.historique || []), ...(data.enRetard || [])];
+
+    // Remplissage des livres pour le calcul des stats
+    this.livres = Array.from(new Map(tous.filter(e => e?.livre).map(e => [e.livre.uuidLivre || e.livre.id, e.livre])).values());
+
+    // Remplissage des listes d'affichage
+    this.mesEmprunts = (data.enCours || []).map((e: any) => this.enrichir(e, aujourdhui));
+    this.empruntsEnRetard = (data.enRetard || []).map((e: any) => this.enrichir(e, aujourdhui));
+
+    // Mise à jour des compteurs admin
+    this.retardsGlobaux = this.empruntsEnRetard.length;
+    this.calculerStatsGlobales();
+  }
+
+  private calculerStatsGlobales() {
+    this.stats.totalOuvrages = this.livres.length;
+    this.stats.totalExemplaires = this.livres.reduce((acc, l) => acc + (l.exemplaireTotal || 0), 0);
+    const dispos = this.livres.reduce((acc, l) => acc + (l.exemplaireDisponible || 0), 0);
+    this.stats.enCirculation = this.stats.totalExemplaires - dispos;
+    this.stats.tauxOccupation = this.stats.totalExemplaires > 0
+      ? Math.round((this.stats.enCirculation / this.stats.totalExemplaires) * 100) : 0;
   }
 }

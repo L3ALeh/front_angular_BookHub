@@ -26,6 +26,7 @@ export class livreDetailsComponent implements OnInit {
   estUtilisateur: boolean = false;
   peutCommenter: boolean = false;
   dejaEmprunte: boolean = false;
+  dejaReserve: boolean = false;
 
   constructor(
     public authService: AuthService,
@@ -33,7 +34,8 @@ export class livreDetailsComponent implements OnInit {
     private empruntService: EmpruntService,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     const uuid = this.route.snapshot.paramMap.get('id');
@@ -45,6 +47,7 @@ export class livreDetailsComponent implements OnInit {
       if (this.estUtilisateur && userId) {
         this.verifierDroitD_Avis(uuid, userId);
         this.verifierSiDejaEmprunte(uuid, userId);
+        this.verifierSiDejaReserve(uuid); // <--- IL MANQUE CET APPEL ICI
       }
     }
   }
@@ -84,10 +87,6 @@ export class livreDetailsComponent implements OnInit {
       },
       error: () => this.peutCommenter = false
     });
-  }
-
-  reserverLivre(): void {
-    if (this.livre) alert(`Ajouté à la liste d'attente.`);
   }
 
   validerModification(): void {
@@ -145,7 +144,7 @@ export class livreDetailsComponent implements OnInit {
 
   publierAvis(): void {
     if (this.noteSelectionnee > 0 && this.nouveauCommentaire.trim() && this.livre?.uuidLivre) {
-      const avis = { note: this.noteSelectionnee, texte: this.nouveauCommentaire };
+      const avis = {note: this.noteSelectionnee, texte: this.nouveauCommentaire};
       this.livreService.postCommentaire(this.livre.uuidLivre.toString(), avis).subscribe({
         next: (nouveauCom: Commentaire) => {
           if (!this.livre!.commentaires) this.livre!.commentaires = [];
@@ -160,7 +159,7 @@ export class livreDetailsComponent implements OnInit {
   }
 
   supprimerCommentaire(id: number): void {
-    if(confirm('Supprimer cet avis ?')) {
+    if (confirm('Supprimer cet avis ?')) {
       this.livreService.deleteCommentaire(id).subscribe({
         next: () => {
           if (this.livre && this.livre.commentaires) {
@@ -182,14 +181,48 @@ export class livreDetailsComponent implements OnInit {
     }
   }
 
-  setHover(star: number): void { this.noteSurvolee = star; }
-  noter(star: number): void { this.noteSelectionnee = star; }
+  setHover(star: number): void {
+    this.noteSurvolee = star;
+  }
+
+  noter(star: number): void {
+    this.noteSelectionnee = star;
+  }
 
   verifierSiDejaEmprunte(uuidLivre: string, userId: string): void {
     this.empruntService.getEmpruntsEnCours(userId).subscribe({
       next: (emprunts: any[]) => {
         this.dejaEmprunte = emprunts.some(e => e.livre?.uuidLivre === uuidLivre);
       }
+    });
+  }
+
+
+  reserverLivre(): void {
+    if (this.livre && this.livre.uuidLivre) {
+      this.empruntService.reserverLivre(this.livre.uuidLivre.toString()).subscribe({
+        next: () => {
+          this.dejaReserve = true; // <--- Bloquer le bouton immédiatement
+          alert(`Réservation confirmée pour "${this.livre?.titre}" !`);
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          this.errorMessage = err.error?.message || "Erreur lors de la réservation.";
+          alert(this.errorMessage);
+        }
+      });
+    }
+  }
+
+  verifierSiDejaReserve(uuidLivre: string): void {
+    this.empruntService.getMesReservations().subscribe({
+      next: (reservations: any[]) => {
+        // On vérifie si ce livre est dans la liste des réservations 'ATTENTE'
+        this.dejaReserve = reservations.some(res =>
+          res.livre?.uuidLivre === uuidLivre && res.statut === 'ATTENTE'
+        );
+      },
+      error: (err) => console.error('Erreur verif reservation', err)
     });
   }
 }

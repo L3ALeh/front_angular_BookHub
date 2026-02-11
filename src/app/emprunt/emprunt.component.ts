@@ -4,7 +4,6 @@ import localeFr from '@angular/common/locales/fr';
 import { Emprunt, EmpruntService } from '../services/emprunt.service';
 import { AuthService } from '../services/auth.service';
 import { RouterModule } from '@angular/router';
-import {Observable} from 'rxjs';
 
 registerLocaleData(localeFr);
 
@@ -17,8 +16,9 @@ registerLocaleData(localeFr);
 })
 export class EmpruntComponent implements OnInit {
   empruntsEnCours: Emprunt[] = [];
-  toutesLesReservations: any[] = [];
   historique: Emprunt[] = [];
+  // Cette variable sera utilisée par le HTML pour les deux rôles
+  mesReservations: any[] = [];
   ongletActif: 'emprunt' | 'reservation' = 'emprunt';
 
   constructor(
@@ -35,35 +35,52 @@ export class EmpruntComponent implements OnInit {
     const isLibrarian = this.authService.hasRole('LIBRARIAN');
 
     if (isLibrarian) {
+      // Cas Bibliothécaire : On récupère tout d'un coup
       this.empruntService.getAllEmpruntsGlobal().subscribe({
         next: (data) => {
           this.empruntsEnCours = data.enCours || [];
-          // AJOUT : On récupère l'historique depuis l'objet global retourné par le back
           this.historique = data.historique || [];
-          this.toutesLesReservations = data.reservations || [];
+          // On remplit mesReservations avec les réservations globales pour le mode Admin
+          this.mesReservations = data.reservations || [];
         },
         error: (err) => console.error('Erreur admin:', err)
       });
     } else if (userId) {
-      this.rafraichirDonnees(userId);
+      // Cas Lecteur : On charge les emprunts, l'historique et les réservations perso
+      this.rafraichirDonneesLecteur(userId);
     }
   }
 
-  rafraichirDonnees(userId: string): void {
-    // Charge les emprunts EN_COURS
+  rafraichirDonneesLecteur(userId: string): void {
+    // 1. Emprunts actifs
     this.empruntService.getEmpruntsEnCours(userId).subscribe({
       next: (data) => this.empruntsEnCours = data,
       error: (err) => console.error('Erreur emprunts actifs:', err)
     });
 
-    // Charge l'historique (RETOURNE)
+    // 2. Historique
     this.empruntService.getHistorique(userId).subscribe({
-      next: (data) => {
-        this.historique = data;
-        console.log("Historique chargé :", data); // Vérifiez ici si des données arrivent
-      },
+      next: (data) => this.historique = data,
       error: (err) => console.error('Erreur historique:', err)
     });
+
+    // 3. Réservations personnelles
+    this.empruntService.getMesReservations().subscribe({
+      next: (data) => this.mesReservations = data,
+      error: (err) => console.error('Erreur réservations:', err)
+    });
+  }
+
+  annulerReservation(idReservation: string): void {
+    if (confirm("Voulez-vous vraiment annuler cette réservation ?")) {
+      this.empruntService.annulerReservation(idReservation).subscribe({
+        next: () => {
+          alert("Réservation annulée avec succès.");
+          this.chargerDonnees(); // On rafraîchit tout
+        },
+        error: (err) => alert("Erreur lors de l'annulation.")
+      });
+    }
   }
 
   changerOnglet(onglet: 'emprunt' | 'reservation'): void {
@@ -72,38 +89,22 @@ export class EmpruntComponent implements OnInit {
 
   retournerLivre(uuidEmprunt: string): void {
     if (confirm("Valider le retour de ce livre ?")) {
-      // UTILISE BIEN LE SERVICE EMPRUNT ICI
       this.empruntService.validerRetour(uuidEmprunt).subscribe({
         next: () => {
-          alert("Livre rendu ! Il va apparaître dans l'historique.");
-          this.chargerDonnees(); // Rafraîchit les listes
+          alert("Livre rendu !");
+          this.chargerDonnees();
         },
-        error: (err) => {
-          console.error("Erreur 500 : Vérifie ton code Java !", err);
-        }
+        error: (err) => console.error("Erreur retour:", err)
       });
     }
   }
 
-  joursRestants(emprunt: Emprunt): number {
-    const diff = new Date(emprunt.dateFinPrevue).getTime() - new Date().getTime();
-    return Math.ceil(diff / (1000 * 60 * 60 * 24));
-  }
-
-  joursRetard(emprunt: Emprunt): number {
-    return Math.abs(this.joursRestants(emprunt));
-  }
-
   getRetard(emprunt: any): number {
     const datePrevueStr = emprunt.dateFinPrevue || emprunt.date_fin_prevue;
-
     if (!datePrevueStr) return 0;
-
     const datePrevue = new Date(datePrevueStr);
     const aujourdhui = new Date();
-
     const diffInMs = datePrevue.getTime() - aujourdhui.getTime();
-
     return Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
   }
 }

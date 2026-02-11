@@ -53,10 +53,9 @@ export class AuthService {
     if (!token) return null;
     try {
       const decoded: any = jwtDecode(token);
-      // On cherche la clé 'uuid' que nous avons ajoutée au Backend
-      return decoded.uuid || null;
+      // Ton token utilise 'sub' pour l'identifiant (ici l'email)
+      return decoded.sub || null;
     } catch (error) {
-      console.error("Erreur décodage token", error);
       return null;
     }
   }
@@ -66,8 +65,10 @@ export class AuthService {
     if (!token) return false;
     try {
       const decoded: any = jwtDecode(token);
+      // On récupère le tableau des rôles
       const roles: string[] = decoded.roles || [];
-      return roles.includes(role);
+      // On vérifie si le rôle demandé est présent (ex: 'ROLE_READER' ou 'READER')
+      return roles.includes(role) || roles.includes('ROLE_' + role);
     } catch {
       return false;
     }
