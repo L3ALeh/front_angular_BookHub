@@ -23,7 +23,7 @@ export class CatalogueComponent implements OnInit {
 
   nouvelleCategorie: string = '';
 
-  // Modèle aligné avec ton formulaire HTML
+  // objet vide pour le formulaire d'ajout
   nouveauLivre: any = {
     titre: '',
     auteur: '',
@@ -32,7 +32,7 @@ export class CatalogueComponent implements OnInit {
     description: '',
     couverture: '',
     datePublication: '',
-    editeur: '', // Ajouté car présent dans ton HTML
+    editeur: '',
     exemplaireTotal: 1,
     page: 0
   };
@@ -50,15 +50,17 @@ export class CatalogueComponent implements OnInit {
   chargerLivres() {
     this.livreService.getLivres().subscribe({
       next: (data) => {
+        // on check si c'est paginé ou une liste brute
         this.livres = (data as any).content || data || [];
 
+        // on extrait les categories uniques des livres recus
         this.categories = [...new Set(this.livres.map(l => (l.categorie || '').trim()))]
           .filter(c => c !== '')
           .sort();
 
         this.applyFilters();
       },
-      error: (err) => console.error("Erreur BDD : ", err)
+      error: (err) => console.error("erreur bdd : ", err)
     });
   }
 
@@ -70,6 +72,7 @@ export class CatalogueComponent implements OnInit {
 
   applyFilters(): void {
     this.livresFiltres = this.livres.filter(l => {
+      // recherche sur titre ou auteur
       const matchSearch = !this.searchTerm ||
         l.titre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         l.auteur.toLowerCase().includes(this.searchTerm.toLowerCase());
@@ -77,6 +80,7 @@ export class CatalogueComponent implements OnInit {
       const matchCat = this.selectedCategorie === 'Toutes catégories' ||
         l.categorie === this.selectedCategorie;
 
+      // filtre "dispo uniquement"
       const matchDispo = !this.onlyAvailable || l.exemplaireDisponible > 0;
 
       return matchSearch && matchCat && matchDispo;
@@ -84,6 +88,7 @@ export class CatalogueComponent implements OnInit {
   }
 
   confirmerAjout() {
+    // on switch si l'admin a saisi une nouvelle categorie
     const categorieFinale = this.nouveauLivre.categorie === 'AUTRE'
       ? this.nouvelleCategorie
       : this.nouveauLivre.categorie;
@@ -98,12 +103,12 @@ export class CatalogueComponent implements OnInit {
 
     this.livreService.addLivre(livreAEnvoyer).subscribe({
       next: () => {
-        this.chargerLivres();
+        this.chargerLivres(); // on refresh la liste
         this.resetForm();
       },
       error: (err) => {
-        console.error("Erreur serveur :", err);
-        alert("Impossible d'ajouter le livre. Vérifiez les champs.");
+        console.error("erreur serveur :", err);
+        alert("impossible d'ajouter le livre. vérifiez les champs.");
       }
     });
   }

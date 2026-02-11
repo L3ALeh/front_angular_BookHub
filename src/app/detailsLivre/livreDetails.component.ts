@@ -34,8 +34,7 @@ export class livreDetailsComponent implements OnInit {
     private empruntService: EmpruntService,
     private route: ActivatedRoute,
     private router: Router
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
     const uuid = this.route.snapshot.paramMap.get('id');
@@ -45,9 +44,11 @@ export class livreDetailsComponent implements OnInit {
       this.chargerLivre(uuid);
       const userId = this.authService.getUserId();
       if (this.estUtilisateur && userId) {
+        // on check si le user peut donner son avis
         this.verifierDroitD_Avis(uuid, userId);
         this.verifierSiDejaEmprunte(uuid, userId);
-        this.verifierSiDejaReserve(uuid); // <--- IL MANQUE CET APPEL ICI
+        // verif si deja en attente de reservation
+        this.verifierSiDejaReserve(uuid);
       }
     }
   }
@@ -65,7 +66,7 @@ export class livreDetailsComponent implements OnInit {
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
-        this.errorMessage = err.error?.error || "Le serveur a refusé l'emprunt.";
+        this.errorMessage = err.error?.error || "le serveur a refusé l'emprunt.";
       }
     });
   }
@@ -91,6 +92,7 @@ export class livreDetailsComponent implements OnInit {
 
   validerModification(): void {
     if (this.livre && this.livre.uuidLivre) {
+      // gestion de la nouvelle categorie perso
       if (this.livre.categorie === 'NEW_CAT' && this.nouvelleCategorieSaisie.trim() !== "") {
         this.livre.categorie = this.nouvelleCategorieSaisie;
         if (!this.categories.includes(this.nouvelleCategorieSaisie)) {
@@ -98,6 +100,7 @@ export class livreDetailsComponent implements OnInit {
         }
       }
 
+      // remise au format yyyy-mm-dd pour le back
       let dateAEnvoyer = this.livre.datePublication;
       if (dateAEnvoyer && dateAEnvoyer.includes('/')) {
         const parts = dateAEnvoyer.split('/');
@@ -121,15 +124,16 @@ export class livreDetailsComponent implements OnInit {
           this.livre = res;
           this.nouvelleCategorieSaisie = "";
           this.formaterDatesPourAffichage();
-          alert('Mise à jour réussie !');
+          alert('mise à jour réussie !');
         },
-        error: () => alert('Erreur lors de la sauvegarde.')
+        error: () => alert('erreur lors de la sauvegarde.')
       });
     }
   }
 
   private formaterDatesPourAffichage(): void {
     if (this.livre) {
+      // transforme le format iso en fr
       if (this.livre.dateAjout && this.livre.dateAjout.includes('T')) {
         this.livre.dateAjout = new Date(this.livre.dateAjout).toLocaleDateString('fr-FR');
       }
@@ -148,18 +152,19 @@ export class livreDetailsComponent implements OnInit {
       this.livreService.postCommentaire(this.livre.uuidLivre.toString(), avis).subscribe({
         next: (nouveauCom: Commentaire) => {
           if (!this.livre!.commentaires) this.livre!.commentaires = [];
+          // on ajoute le com direct en haut de liste
           this.livre!.commentaires.unshift(nouveauCom);
           this.nouveauCommentaire = "";
           this.noteSelectionnee = 0;
-          alert('Avis publié !');
+          alert('avis publié !');
         },
-        error: () => alert('Erreur lors de la publication')
+        error: () => alert('erreur lors de la publication')
       });
     }
   }
 
   supprimerCommentaire(id: number): void {
-    if (confirm('Supprimer cet avis ?')) {
+    if (confirm('supprimer cet avis ?')) {
       this.livreService.deleteCommentaire(id).subscribe({
         next: () => {
           if (this.livre && this.livre.commentaires) {
@@ -172,15 +177,16 @@ export class livreDetailsComponent implements OnInit {
 
   supprimerLivre(): void {
     if (this.livre && this.livre.uuidLivre) {
-      if (confirm('Retirer ce livre du catalogue ?')) {
+      if (confirm('retirer ce livre du catalogue ?')) {
         this.livreService.deleteLivre(this.livre.uuidLivre.toString()).subscribe({
           next: () => this.router.navigate(['/books']),
-          error: () => alert('Erreur lors de la suppression.')
+          error: () => alert('erreur lors de la suppression.')
         });
       }
     }
   }
 
+  // gestion du hover pour les etoiles
   setHover(star: number): void {
     this.noteSurvolee = star;
   }
@@ -197,17 +203,16 @@ export class livreDetailsComponent implements OnInit {
     });
   }
 
-
   reserverLivre(): void {
     if (this.livre && this.livre.uuidLivre) {
       this.empruntService.reserverLivre(this.livre.uuidLivre.toString()).subscribe({
         next: () => {
-          this.dejaReserve = true; // <--- Bloquer le bouton immédiatement
-          alert(`Réservation confirmée pour "${this.livre?.titre}" !`);
+          this.dejaReserve = true;
+          alert(`réservation confirmée pour "${this.livre?.titre}" !`);
           this.router.navigate(['/dashboard']);
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || "Erreur lors de la réservation.";
+          this.errorMessage = err.error?.message || "erreur lors de la réservation.";
           alert(this.errorMessage);
         }
       });
@@ -217,12 +222,12 @@ export class livreDetailsComponent implements OnInit {
   verifierSiDejaReserve(uuidLivre: string): void {
     this.empruntService.getMesReservations().subscribe({
       next: (reservations: any[]) => {
-        // On vérifie si ce livre est dans la liste des réservations 'ATTENTE'
+        // on check si c'est deja réservé en attente
         this.dejaReserve = reservations.some(res =>
           res.livre?.uuidLivre === uuidLivre && res.statut === 'ATTENTE'
         );
       },
-      error: (err) => console.error('Erreur verif reservation', err)
+      error: (err) => console.error('erreur verif reservation', err)
     });
   }
 }

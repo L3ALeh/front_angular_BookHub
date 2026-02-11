@@ -12,6 +12,7 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './header1.component.css'
 })
 export class Header1Component {
+  // on suit l'etat de connexion en temps reel
   isAuthenticated$: Observable<boolean>;
 
   constructor(
@@ -24,7 +25,7 @@ export class Header1Component {
   logout(): void {
     this.authService.logout();
 
-    // Redirige vers le login
+    // on renvoie au login et on refresh pour vider les etats
     this.router.navigate(['/login']).then(() => {
       window.location.reload();
     });

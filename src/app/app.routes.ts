@@ -5,14 +5,14 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { ConnexionComponent } from './auth/connexion/connexion.component';
 import { InscriptionComponent } from './auth/inscription/inscription.component';
 import { authGuard } from './auth/auth.guard';
-import {EmpruntComponent} from './emprunt/emprunt.component';
+import { EmpruntComponent } from './emprunt/emprunt.component';
 
 export const routes: Routes = [
-  // Routes publiques accessibles à tous
+  // les routes publiques
   { path: 'login', component: ConnexionComponent },
   { path: 'inscription', component: InscriptionComponent },
 
-  // Routes privées
+  // ici faut etre connecte grace au guard
   {
     path: 'books',
     component: CatalogueComponent,
@@ -33,8 +33,9 @@ export const routes: Routes = [
     component: EmpruntComponent,
     canActivate: [authGuard] },
 
-  // Redirection par défaut
+  //redirection auto on va au dashboard
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
+  // si l'url existe pas, retour case depart
   { path: '**', redirectTo: 'login' }
 ];

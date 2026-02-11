@@ -17,8 +17,8 @@ registerLocaleData(localeFr);
 export class EmpruntComponent implements OnInit {
   empruntsEnCours: Emprunt[] = [];
   historique: Emprunt[] = [];
-  // Cette variable sera utilisée par le HTML pour les deux rôles
   mesReservations: any[] = [];
+  // pour switcher entre les vues dans le html
   ongletActif: 'emprunt' | 'reservation' = 'emprunt';
 
   constructor(
@@ -35,50 +35,49 @@ export class EmpruntComponent implements OnInit {
     const isLibrarian = this.authService.hasRole('LIBRARIAN');
 
     if (isLibrarian) {
-      // Cas Bibliothécaire : On récupère tout d'un coup
+      // si c'est la bibliothecaire, on prend tout le global
       this.empruntService.getAllEmpruntsGlobal().subscribe({
         next: (data) => {
           this.empruntsEnCours = data.enCours || [];
           this.historique = data.historique || [];
-          // On remplit mesReservations avec les réservations globales pour le mode Admin
           this.mesReservations = data.reservations || [];
         },
-        error: (err) => console.error('Erreur admin:', err)
+        error: (err) => console.error('erreur admin:', err)
       });
     } else if (userId) {
-      // Cas Lecteur : On charge les emprunts, l'historique et les réservations perso
+      // sinon juste les infos du user connecté
       this.rafraichirDonneesLecteur(userId);
     }
   }
 
   rafraichirDonneesLecteur(userId: string): void {
-    // 1. Emprunts actifs
+    // recupere les livres pas encore rendus
     this.empruntService.getEmpruntsEnCours(userId).subscribe({
       next: (data) => this.empruntsEnCours = data,
-      error: (err) => console.error('Erreur emprunts actifs:', err)
+      error: (err) => console.error('erreur emprunts actifs:', err)
     });
 
-    // 2. Historique
+    // tout ce qu'il a deja rendu
     this.empruntService.getHistorique(userId).subscribe({
       next: (data) => this.historique = data,
-      error: (err) => console.error('Erreur historique:', err)
+      error: (err) => console.error('erreur historique:', err)
     });
 
-    // 3. Réservations personnelles
+    // ses reservations en attente
     this.empruntService.getMesReservations().subscribe({
       next: (data) => this.mesReservations = data,
-      error: (err) => console.error('Erreur réservations:', err)
+      error: (err) => console.error('erreur réservations:', err)
     });
   }
 
   annulerReservation(idReservation: string): void {
-    if (confirm("Voulez-vous vraiment annuler cette réservation ?")) {
+    if (confirm("voulez-vous vraiment annuler cette réservation ?")) {
       this.empruntService.annulerReservation(idReservation).subscribe({
         next: () => {
-          alert("Réservation annulée avec succès.");
-          this.chargerDonnees(); // On rafraîchit tout
+          alert("réservation annulée.");
+          this.chargerDonnees();
         },
-        error: (err) => alert("Erreur lors de l'annulation.")
+        error: (err) => alert("erreur d'annulation.")
       });
     }
   }
@@ -88,23 +87,25 @@ export class EmpruntComponent implements OnInit {
   }
 
   retournerLivre(uuidEmprunt: string): void {
-    if (confirm("Valider le retour de ce livre ?")) {
+    if (confirm("valider le retour de ce livre ?")) {
       this.empruntService.validerRetour(uuidEmprunt).subscribe({
         next: () => {
-          alert("Livre rendu !");
+          alert("livre rendu !");
           this.chargerDonnees();
         },
-        error: (err) => console.error("Erreur retour:", err)
+        error: (err) => console.error("erreur retour:", err)
       });
     }
   }
 
+  // petit calcul pour savoir si on est dans les temps
   getRetard(emprunt: any): number {
     const datePrevueStr = emprunt.dateFinPrevue || emprunt.date_fin_prevue;
     if (!datePrevueStr) return 0;
     const datePrevue = new Date(datePrevueStr);
     const aujourdhui = new Date();
     const diffInMs = datePrevue.getTime() - aujourdhui.getTime();
+    // on transforme les ms en jours
     return Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
   }
 }
