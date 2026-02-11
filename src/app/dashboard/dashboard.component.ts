@@ -2,8 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { LivreService } from '../services/livre.service';
 import { Livre } from '../models/livre.model';
+import { EmpruntService } from '../services/emprunt.service';
+
+interface EmpruntBrut {
+  livre: Livre;
+  statut: string;
+  utilisateur?: any;
+  uuidUtilisateur?: string;
+  dateFinPrevue?: string;
+  date_fin_prevue?: string;
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -15,6 +24,7 @@ import { Livre } from '../models/livre.model';
 export class DashboardComponent implements OnInit {
   livres: Livre[] = [];
   mesEmprunts: any[] = [];
+  mesReservations: any[] = [];
   retardsLecteur: number = 0;
   reservationsLecteur: number = 0;
   empruntsEnRetard: any[] = [];
@@ -29,7 +39,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     public authService: AuthService,
-    private livreService: LivreService
+    private empruntService: EmpruntService
   ) {}
 
   ngOnInit(): void {
@@ -39,48 +49,54 @@ export class DashboardComponent implements OnInit {
   chargerDonnees() {
     const aujourdhui = new Date();
     aujourdhui.setHours(0, 0, 0, 0);
+    const userId = this.authService.getUserId();
 
-    this.livreService.getLivres().subscribe({
+    this.empruntService.getAllEmpruntsGlobal().subscribe({
       next: (data: any) => {
-        this.livres = data.content || data || [];
+        console.log("Structure détectée :", data);
+
+        const listeBrute: EmpruntBrut[] = [
+          ...(data.enCours || []),
+          ...(data.historique || []),
+          ...(data.enRetard || [])
+        ];
+
+        const livresExtraits: Livre[] = listeBrute
+          .filter(e => e && e.livre)
+          .map(e => e.livre);
+
+        this.livres = Array.from(new Map(livresExtraits.map(l => [l.uuidLivre || (l as any).id, l])).values());
+
         this.calculerStatsGlobales();
+
+        if (userId) {
+          // Emprunts réellement en cours
+          this.mesEmprunts = (data.enCours || [])
+            .filter((e: any) => (e.utilisateur?.uuidUtilisateur || e.uuidUtilisateur) === userId)
+            .map((e: any) => this.enrichir(e, aujourdhui));
+
+          this.mesReservations = (data.enCours || data.reservations || [])
+            .filter((e: any) => {
+              const idOwner = e.utilisateur?.uuidUtilisateur || e.uuidUtilisateur;
+              return idOwner === userId && e.statut === 'RESERVE'; // UNIQUEMENT les réservations
+            });
+
+          const monHistorique = (data.historique || [])
+            .filter((e: any) => (e.utilisateur?.uuidUtilisateur || e.uuidUtilisateur) === userId);
+
+          this.retardsLecteur = (data.enRetard || [])
+            .filter((e: any) => (e.utilisateur?.uuidUtilisateur || e.uuidUtilisateur) === userId).length;
+        }
       },
-      error: (err) => console.error(err)
-    });
-
-    this.livreService.getEmprunts().subscribe({
-      next: (emprunts: any[]) => {
-        const userId = this.authService.getUserId();
-
-        this.mesEmprunts = emprunts
-          .filter(e => {
-            const idOwner = e.utilisateur?.uuidUtilisateur || e.uuid_utilisateur || e.uuidUtilisateur;
-            return idOwner === userId && (e.statut === 'EN_COURS' || e.statut === 'ACTIF');
-          })
-          .map(e => this.enrichir(e, aujourdhui));
-
-        this.retardsLecteur = this.mesEmprunts.filter(e => e.joursRetard > 0).length;
-
-        this.reservationsLecteur = emprunts.filter(e => {
-          const idOwner = e.utilisateur?.uuidUtilisateur || e.uuid_utilisateur || e.uuidUtilisateur;
-          return idOwner === userId && e.statut === 'RESERVE';
-        }).length;
-
-        this.empruntsEnRetard = emprunts
-          .filter(e => {
-            const dateFin = new Date(e.dateFinPrevue || e.date_fin_prevue);
-            return (e.statut === 'EN_COURS' || e.statut === 'ACTIF') && dateFin < aujourdhui;
-          })
-          .map(e => this.enrichir(e, aujourdhui));
-
-        this.retardsGlobaux = this.empruntsEnRetard.length;
-      },
-      error: (err) => console.error(err)
+      error: (err) => console.error('Erreur API :', err)
     });
   }
 
   private enrichir(e: any, aujourdhui: Date) {
-    const dateFin = new Date(e.dateFinPrevue || e.date_fin_prevue);
+    const d = e.dateFinPrevue || e.date_fin_prevue;
+    if (!d) return { ...e, joursRestants: 0, joursRetard: 0 };
+
+    const dateFin = new Date(d);
     const diffTime = dateFin.getTime() - aujourdhui.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -101,8 +117,10 @@ export class DashboardComponent implements OnInit {
   }
 
   get topLivres() {
+    if (!this.livres || this.livres.length === 0) return [];
     return [...this.livres]
-      .sort((a, b) => (b.exemplaireTotal - b.exemplaireDisponible) - (a.exemplaireTotal - a.exemplaireDisponible))
+      .sort((a, b) => ((b.exemplaireTotal || 0) - (b.exemplaireDisponible || 0)) -
+        ((a.exemplaireTotal || 0) - (a.exemplaireDisponible || 0)))
       .slice(0, 5);
   }
 }

@@ -2,23 +2,29 @@
   <div *ngIf="empruntsEnCours.length > 0" style="display:none">{{ empruntsEnCours | json }}</div>
 
   <div class="mb-4">
-    <h1 class="h2 fw-bold mb-1">Mes emprunts et réservations</h1>
-    <p class="text-muted mb-2 fs-5">Gérez vos livres empruntés et réservés</p>
+    <h1 class="h2 fw-bold mb-1">
+      {{ authService.hasRole('LIBRARIAN') ? 'Gestion globale des emprunts' : 'Mes emprunts et réservations' }}
+    </h1>
+    <p class="text-muted mb-2 fs-5">
+      {{ authService.hasRole('LIBRARIAN') ? 'Suivi des flux et des retards lecteurs' : 'Gérez vos livres empruntés et réservés' }}
+    </p>
   </div>
 
   <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
     <div class="d-flex justify-content-around align-items-center">
       <button class="onglet" [class.actif]="ongletActif === 'emprunt'" (click)="changerOnglet('emprunt')">
-        Mes emprunts ({{ empruntsEnCours.length }})
+        {{ authService.hasRole('LIBRARIAN') ? 'Tous les emprunts' : 'Mes emprunts' }} ({{ empruntsEnCours.length }})
       </button>
       <button class="onglet" [class.actif]="ongletActif === 'reservation'" (click)="changerOnglet('reservation')">
-        Mes réservations (0)
+        {{ authService.hasRole('LIBRARIAN') ? 'Toutes les réservations' : 'Mes réservations' }} (0)
       </button>
     </div>
   </div>
 
   <div *ngIf="ongletActif === 'emprunt'">
-    <h5 class="fw-bold mb-4">Emprunts en cours</h5>
+    <h5 class="fw-bold mb-4">
+      {{ authService.hasRole('LIBRARIAN') ? 'Emprunts en cours dans la bibliothèque' : 'Emprunts en cours' }}
+    </h5>
 
     <div *ngIf="!empruntsEnCours || empruntsEnCours.length === 0" class="alert alert-light border rounded-4 text-center py-5">
       <i class="bi bi-book mb-2 fs-1 d-block text-muted"></i>
@@ -26,7 +32,9 @@
     </div>
 
     <div *ngFor="let emprunt of empruntsEnCours" class="carte-emprunt mb-4">
-      <div class="card border-0 shadow-sm rounded-4 p-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4"
+           [class.border-start]="authService.hasRole('LIBRARIAN')"
+           [style.border-left]="authService.hasRole('LIBRARIAN') ? (getRetard(emprunt) < 0 ? '5px solid #dc3545' : '5px solid #0d6efd') : 'none'">
         <div class="row g-4 align-items-center">
           <div class="col-md-2">
             <img [alt]="emprunt.livre?.titre"
@@ -36,7 +44,13 @@
           </div>
 
           <div class="col-md-7">
-            <h6 class="fw-semibold text-dark fs-5">{{ emprunt.livre?.titre }}</h6>
+            <div *ngIf="authService.hasRole('LIBRARIAN')" class="mb-2">
+              <span class="badge bg-light text-dark border">
+                <i class="bi bi-person-fill"></i> Lecteur : {{ emprunt.utilisateur?.prenom }} {{ emprunt.utilisateur?.nom }}
+              </span>
+            </div>
+
+            <h6 class="fw-semibold text-dark fs-5 mb-1">{{ emprunt.livre?.titre }}</h6>
             <p class="text-muted mb-2">{{ emprunt.livre?.auteur }}</p>
             <p class="small mb-1">Emprunté le : <strong>{{ emprunt.dateDebut | date:'dd MMMM yyyy' }}</strong></p>
 
@@ -56,9 +70,9 @@
               </span>
             </div>
             <button *ngIf="authService.hasRole('LIBRARIAN')"
-                    class="btn btn-outline-primary btn-sm rounded-pill w-100"
+                    class="btn btn-primary btn-sm rounded-pill w-100 shadow-sm"
                     (click)="retournerLivre(emprunt.uuidEmprunt)">
-              Retourner ce livre
+              Valider le retour
             </button>
           </div>
         </div>
@@ -66,7 +80,9 @@
     </div>
 
     <hr class="my-5">
-    <h5 class="fw-bold mb-4">Historique de vos lectures</h5>
+    <h5 class="fw-bold mb-4">
+      {{ authService.hasRole('LIBRARIAN') ? 'Historique global des retours' : 'Historique de vos lectures' }}
+    </h5>
 
     <div *ngIf="!historique || historique.length === 0" class="text-muted italic">
       Aucun emprunt dans l'historique.
@@ -77,6 +93,7 @@
         <thead class="bg-light">
         <tr>
           <th class="ps-4">LIVRE</th>
+          <th *ngIf="authService.hasRole('LIBRARIAN')">LECTEUR</th>
           <th>DATE D'EMPRUNT</th>
           <th>DATE DE RETOUR</th>
         </tr>
@@ -89,8 +106,13 @@
               <span class="text-muted small">{{ h.livre?.auteur }}</span>
             </div>
           </td>
-          <td>{{ h.dateDebut | date:'dd/MM/yyyy' }}</td>
-          <td>{{ h.dateFin | date:'dd/MM/yyyy' }}</td>
+
+          <td *ngIf="authService.hasRole('LIBRARIAN')" class="align-middle small">
+            {{ h.utilisateur?.prenom }} {{ h.utilisateur?.nom }}
+          </td>
+
+          <td class="align-middle">{{ h.dateDebut | date:'dd/MM/yyyy' }}</td>
+          <td class="align-middle">{{ h.dateFin | date:'dd/MM/yyyy' }}</td>
         </tr>
         </tbody>
       </table>

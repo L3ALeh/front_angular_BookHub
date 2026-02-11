@@ -46,12 +46,25 @@
         </div>
 
         <div class="my-4" *ngIf="!authService.hasRole('LIBRARIAN')">
-          <button *ngIf="livre.exemplaireDisponible > 0" (click)="emprunterLivre()" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm">
-            Emprunter ce livre
-          </button>
-          <button *ngIf="livre.exemplaireDisponible <= 0" (click)="reserverLivre()" class="btn btn-warning btn-lg rounded-pill px-4 shadow-sm">
-            Réserver ce livre
-          </button>
+          <div *ngIf="dejaEmprunte" class="alert alert-info border-0 rounded-4 mb-3 shadow-sm">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            Vous avez déjà ce livre en cours d'emprunt.
+          </div>
+
+          <div class="d-flex gap-2">
+            <button *ngIf="livre.exemplaireDisponible > 0"
+                    (click)="emprunterLivre()"
+                    [disabled]="dejaEmprunte"
+                    class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm">
+              {{ dejaEmprunte ? 'Livre déjà emprunté' : 'Emprunter ce livre' }}
+            </button>
+
+            <button *ngIf="livre.exemplaireDisponible <= 0"
+                    (click)="reserverLivre()"
+                    class="btn btn-warning btn-lg rounded-pill px-4 shadow-sm">
+              Réserver ce livre
+            </button>
+          </div>
         </div>
 
         <div class="bg-light rounded-4 p-4 mb-4">

@@ -4,6 +4,7 @@ import { AuthService } from '../services/auth.service';
 import { LivreService } from '../services/livre.service';
 import { Livre, Commentaire } from '../models/livre.model';
 import { CommonModule } from '@angular/common';
+import { EmpruntService } from '../services/emprunt.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -15,20 +16,21 @@ import { FormsModule } from '@angular/forms';
 })
 export class livreDetailsComponent implements OnInit {
   livre: Livre | null = null;
+  errorMessage: string = ''; // AJOUT : Pour afficher l'erreur anti-doublon
 
-  // Correction de l'erreur NG9 : On déclare les propriétés nécessaires au HTML
   categories: string[] = ['Science-Fiction', 'Roman', 'Poésie', 'Jeunesse', 'Histoire', 'Philosophie', 'Fantastique', 'Biographie'];
   nouvelleCategorieSaisie: string = "";
-
   noteSelectionnee: number = 0;
   noteSurvolee: number = 0;
   nouveauCommentaire: string = "";
   estUtilisateur: boolean = false;
   peutCommenter: boolean = false;
+  dejaEmprunte: boolean = false;
 
   constructor(
     public authService: AuthService,
     private livreService: LivreService,
+    private empruntService: EmpruntService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -42,8 +44,27 @@ export class livreDetailsComponent implements OnInit {
       const userId = this.authService.getUserId();
       if (this.estUtilisateur && userId) {
         this.verifierDroitD_Avis(uuid, userId);
+        this.verifierSiDejaEmprunte(uuid, userId);
       }
     }
+  }
+
+  emprunterLivre(): void {
+    const userId = this.authService.getUserId();
+    this.errorMessage = '';
+
+    if (!userId || !this.livre?.uuidLivre) return;
+
+    this.empruntService.emprunterLivre(this.livre.uuidLivre.toString(), userId).subscribe({
+      next: () => {
+        if (this.livre) this.livre.exemplaireDisponible--;
+        alert(`Emprunt réussi !`);
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.error || "Le serveur a refusé l'emprunt.";
+      }
+    });
   }
 
   chargerLivre(uuid: string): void {
@@ -65,40 +86,12 @@ export class livreDetailsComponent implements OnInit {
     });
   }
 
-  emprunterLivre(): void {
-    const userId = this.authService.getUserId();
-    console.log('ID Utilisateur récupéré :', userId); // Diagnostic 1
-
-    if (!userId) {
-      alert("Erreur : Impossible de récupérer votre identifiant. Reconnectez-vous.");
-      return;
-    }
-
-    if (!this.livre || !this.livre.uuidLivre) {
-      console.log('Erreur : Données du livre manquantes'); // Diagnostic 2
-      return;
-    }
-
-    this.livreService.emprunterLivre(this.livre.uuidLivre.toString(), userId).subscribe({
-      next: () => {
-        if (this.livre) this.livre.exemplaireDisponible--;
-        alert(`Emprunt réussi !`);
-      },
-      error: (err) => {
-        console.error('Erreur API :', err);
-        alert("Le serveur a refusé l'emprunt.");
-      }
-    });
-  }
-
   reserverLivre(): void {
     if (this.livre) alert(`Ajouté à la liste d'attente.`);
   }
 
   validerModification(): void {
     if (this.livre && this.livre.uuidLivre) {
-
-      // Gestion de la nouvelle catégorie saisie par le Librarian
       if (this.livre.categorie === 'NEW_CAT' && this.nouvelleCategorieSaisie.trim() !== "") {
         this.livre.categorie = this.nouvelleCategorieSaisie;
         if (!this.categories.includes(this.nouvelleCategorieSaisie)) {
@@ -122,13 +115,12 @@ export class livreDetailsComponent implements OnInit {
         datePublication: dateAEnvoyer
       };
 
-      // Supprimer les champs calculés ou inutiles pour le backend
       delete (livreAjour as any).dateAjout;
 
       this.livreService.updateLivre(this.livre.uuidLivre.toString(), livreAjour).subscribe({
         next: (res: Livre) => {
           this.livre = res;
-          this.nouvelleCategorieSaisie = ""; // Reset après succès
+          this.nouvelleCategorieSaisie = "";
           this.formaterDatesPourAffichage();
           alert('Mise à jour réussie !');
         },
@@ -193,4 +185,11 @@ export class livreDetailsComponent implements OnInit {
   setHover(star: number): void { this.noteSurvolee = star; }
   noter(star: number): void { this.noteSelectionnee = star; }
 
+  verifierSiDejaEmprunte(uuidLivre: string, userId: string): void {
+    this.empruntService.getEmpruntsEnCours(userId).subscribe({
+      next: (emprunts: any[]) => {
+        this.dejaEmprunte = emprunts.some(e => e.livre?.uuidLivre === uuidLivre);
+      }
+    });
+  }
 }

@@ -10,28 +10,37 @@ export interface Emprunt {
   statut: string;
   livre: any;
   estEnRetard: boolean;
+  utilisateur?: any;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class EmpruntService {
   private apiUrl = 'http://localhost:8080/api/loans';
 
   constructor(private http: HttpClient) {}
+
+  // bouton "Emprunter" du livre
+  emprunterLivre(uuidLivre: string, uuidUtilisateur: string): Observable<any> {
+    const body = { uuidLivre, uuidUtilisateur };
+    return this.http.post(this.apiUrl, body);
+  }
+
+  //  bouton "Valider le retour" du bibliothécaire
+  validerRetour(uuidEmprunt: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${uuidEmprunt}/retour`, {});
+  }
+
+  //historique du lecteur
+  getHistorique(userId: string): Observable<Emprunt[]> {
+    return this.http.get<Emprunt[]>(`${this.apiUrl}/utilisateur/${userId}/historique`);
+  }
 
   getEmpruntsEnCours(userId: string): Observable<Emprunt[]> {
     return this.http.get<any>(`${this.apiUrl}/utilisateur/${userId}/actifs`).pipe(
       map(res => Array.isArray(res) ? res : (res.content || []))
     );
   }
-
-  getHistorique(userId: string): Observable<Emprunt[]> {
-    return this.http.get<Emprunt[]>(`${this.apiUrl}/utilisateur/${userId}/historique`);
-  }
-
-
-  deleteEmprunt(uuidEmprunt: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${uuidEmprunt}`);
+  getAllEmpruntsGlobal(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/admin/all`);
   }
 }

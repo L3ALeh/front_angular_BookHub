@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import {catchError, map, Observable, throwError} from 'rxjs';
 import { Livre, Commentaire } from '../models/livre.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LivreService {
-  private apiUrl = 'http://localhost:8080/api/books';
-  private empruntUrl = 'http://localhost:8080/api/loans';
+  private apiUrl = 'http://localhost:8080/api/books'; // Pour les livres
+  private empruntUrl = 'http://localhost:8080/api/loans'; // Pour les emprunts
+
 
   constructor(private http: HttpClient) {
   }
@@ -46,36 +47,5 @@ export class LivreService {
 
   deleteCommentaire(idCommentaire: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/commentaires/${idCommentaire}`);
-  }
-
-
-  // Récup les emprunts d'un seul utilisateur
-  getEmpruntsUtilisateur(userId: string): Observable<any[]> {
-    return this.http.get<any>(`${this.empruntUrl}/utilisateur/${userId}`).pipe(
-      // On vérifie si les données sont dans .content (cas de Spring Page) ou directes
-      map(res => res.content || res)
-    );
-  }
-
-  // Récup tous les emprunts de la base
-  getEmprunts(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.empruntUrl}`);
-  }
-
-  // Supprimer un emprunt (Bouton "Rendre")
-  deleteEmprunt(uuidEmprunt: string): Observable<void> {
-    return this.http.delete<void>(`${this.empruntUrl}/${uuidEmprunt}`);
-  }
-
-  // Créer un nouvel emprunt -> decrementation
-  emprunterLivre(uuidLivre: string, uuidUtilisateur: string): Observable<any> {
-    // On change 'userId' en 'uuidUtilisateur' pour matcher le DTO Java
-    const payload = {
-      uuidLivre: uuidLivre,
-      uuidUtilisateur: uuidUtilisateur
-    };
-
-    console.log('Payload envoyé au serveur :', payload); // Petit log pour être sûr
-    return this.http.post(`${this.empruntUrl}`, payload, { responseType: 'text' });
   }
 }

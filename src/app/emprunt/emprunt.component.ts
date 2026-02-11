@@ -4,6 +4,7 @@ import localeFr from '@angular/common/locales/fr';
 import { Emprunt, EmpruntService } from '../services/emprunt.service';
 import { AuthService } from '../services/auth.service';
 import { RouterModule } from '@angular/router';
+import {Observable} from 'rxjs';
 
 registerLocaleData(localeFr);
 
@@ -16,6 +17,7 @@ registerLocaleData(localeFr);
 })
 export class EmpruntComponent implements OnInit {
   empruntsEnCours: Emprunt[] = [];
+  toutesLesReservations: any[] = [];
   historique: Emprunt[] = [];
   ongletActif: 'emprunt' | 'reservation' = 'emprunt';
 
@@ -25,20 +27,41 @@ export class EmpruntComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.chargerDonnees();
+  }
+
+  chargerDonnees(): void {
     const userId = this.authService.getUserId();
-    if (userId) {
+    const isLibrarian = this.authService.hasRole('LIBRARIAN');
+
+    if (isLibrarian) {
+      this.empruntService.getAllEmpruntsGlobal().subscribe({
+        next: (data) => {
+          this.empruntsEnCours = data.enCours || [];
+          // AJOUT : On récupère l'historique depuis l'objet global retourné par le back
+          this.historique = data.historique || [];
+          this.toutesLesReservations = data.reservations || [];
+        },
+        error: (err) => console.error('Erreur admin:', err)
+      });
+    } else if (userId) {
       this.rafraichirDonnees(userId);
     }
   }
 
   rafraichirDonnees(userId: string): void {
+    // Charge les emprunts EN_COURS
     this.empruntService.getEmpruntsEnCours(userId).subscribe({
       next: (data) => this.empruntsEnCours = data,
       error: (err) => console.error('Erreur emprunts actifs:', err)
     });
 
+    // Charge l'historique (RETOURNE)
     this.empruntService.getHistorique(userId).subscribe({
-      next: (data) => this.historique = data,
+      next: (data) => {
+        this.historique = data;
+        console.log("Historique chargé :", data); // Vérifiez ici si des données arrivent
+      },
       error: (err) => console.error('Erreur historique:', err)
     });
   }
@@ -48,12 +71,15 @@ export class EmpruntComponent implements OnInit {
   }
 
   retournerLivre(uuidEmprunt: string): void {
-    if (confirm("Confirmer le retour de ce livre ?")) {
-      this.empruntService.deleteEmprunt(uuidEmprunt).subscribe({
+    if (confirm("Valider le retour de ce livre ?")) {
+      // UTILISE BIEN LE SERVICE EMPRUNT ICI
+      this.empruntService.validerRetour(uuidEmprunt).subscribe({
         next: () => {
-          const userId = this.authService.getUserId();
-          if (userId) this.rafraichirDonnees(userId);
-          alert("Livre rendu !");
+          alert("Livre rendu ! Il va apparaître dans l'historique.");
+          this.chargerDonnees(); // Rafraîchit les listes
+        },
+        error: (err) => {
+          console.error("Erreur 500 : Vérifie ton code Java !", err);
         }
       });
     }
