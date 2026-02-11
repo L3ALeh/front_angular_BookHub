@@ -10,9 +10,9 @@ export class LivreService {
   private apiUrl = 'http://localhost:8080/api/books';
   private empruntUrl = 'http://localhost:8080/api/loans';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+  }
 
-  // PARTIE LIVRES
   getLivres(): Observable<Livre[]> {
     return this.http.get<any>(`${this.apiUrl}`).pipe(
       map(response => response.content || response)
@@ -25,7 +25,7 @@ export class LivreService {
 
   checkIfUserReadBook(uuid: string, userId: string): Observable<boolean> {
     const params = new HttpParams().set('userId', userId);
-    return this.http.get<boolean>(`${this.apiUrl}/check-lecture/${uuid}`, { params });
+    return this.http.get<boolean>(`${this.apiUrl}/check-lecture/${uuid}`, {params});
   }
 
   addLivre(livre: any): Observable<Livre> {
@@ -48,15 +48,16 @@ export class LivreService {
     return this.http.delete<void>(`${this.apiUrl}/commentaires/${idCommentaire}`);
   }
 
-    // PARTIE EMPRUNTS
 
-  // Récupérer les emprunts d'un seul utilisateur (Lecteur)
+  // Récup les emprunts d'un seul utilisateur
   getEmpruntsUtilisateur(userId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.empruntUrl}/utilisateur/${userId}`);
+    return this.http.get<any>(`${this.empruntUrl}/utilisateur/${userId}`).pipe(
+      // On vérifie si les données sont dans .content (cas de Spring Page) ou directes
+      map(res => res.content || res)
+    );
   }
 
-  // Récupérer TOUS les emprunts de la base (Bibliothécaire)
-  // Indispensable pour calculer les retards globaux et le taux d'occupation
+  // Récup tous les emprunts de la base
   getEmprunts(): Observable<any[]> {
     return this.http.get<any[]>(`${this.empruntUrl}`);
   }
@@ -64,5 +65,17 @@ export class LivreService {
   // Supprimer un emprunt (Bouton "Rendre")
   deleteEmprunt(uuidEmprunt: string): Observable<void> {
     return this.http.delete<void>(`${this.empruntUrl}/${uuidEmprunt}`);
+  }
+
+  // Créer un nouvel emprunt -> decrementation
+  emprunterLivre(uuidLivre: string, uuidUtilisateur: string): Observable<any> {
+    // On change 'userId' en 'uuidUtilisateur' pour matcher le DTO Java
+    const payload = {
+      uuidLivre: uuidLivre,
+      uuidUtilisateur: uuidUtilisateur
+    };
+
+    console.log('Payload envoyé au serveur :', payload); // Petit log pour être sûr
+    return this.http.post(`${this.empruntUrl}`, payload, { responseType: 'text' });
   }
 }

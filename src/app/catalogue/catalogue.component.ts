@@ -1,10 +1,10 @@
-import {Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {Router, RouterModule} from '@angular/router';
-import {LivreService} from '../services/livre.service';
-import {Livre} from '../models/livre.model';
-import {AuthService} from '../services/auth.service';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { LivreService } from '../services/livre.service';
+import { Livre } from '../models/livre.model';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-catalogue',
@@ -23,6 +23,7 @@ export class CatalogueComponent implements OnInit {
 
   nouvelleCategorie: string = '';
 
+  // Modèle aligné avec ton formulaire HTML
   nouveauLivre: any = {
     titre: '',
     auteur: '',
@@ -31,8 +32,8 @@ export class CatalogueComponent implements OnInit {
     description: '',
     couverture: '',
     datePublication: '',
+    editeur: '', // Ajouté car présent dans ton HTML
     exemplaireTotal: 1,
-    exemplaireDisponibleOptionnel: null,
     page: 0
   };
 
@@ -51,17 +52,16 @@ export class CatalogueComponent implements OnInit {
       next: (data) => {
         this.livres = (data as any).content || data || [];
 
-        // Extraction des catégories uniques
         this.categories = [...new Set(this.livres.map(l => (l.categorie || '').trim()))]
           .filter(c => c !== '')
           .sort();
+
         this.applyFilters();
       },
-      error: (err) => {
-        console.error("Erreur BDD : ", err);
-      }
+      error: (err) => console.error("Erreur BDD : ", err)
     });
   }
+
   goToDetails(uuid: string | undefined): void {
     if (uuid) {
       this.router.navigate(['/books', uuid]);
@@ -73,29 +73,28 @@ export class CatalogueComponent implements OnInit {
       const matchSearch = !this.searchTerm ||
         l.titre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         l.auteur.toLowerCase().includes(this.searchTerm.toLowerCase());
+
       const matchCat = this.selectedCategorie === 'Toutes catégories' ||
         l.categorie === this.selectedCategorie;
+
       const matchDispo = !this.onlyAvailable || l.exemplaireDisponible > 0;
+
       return matchSearch && matchCat && matchDispo;
     });
   }
 
   confirmerAjout() {
-    // 1. Gérer la catégorie "Autre"
-    if (this.nouveauLivre.categorie === 'AUTRE') {
-      this.nouveauLivre.categorie = this.nouvelleCategorie;
-    }
+    const categorieFinale = this.nouveauLivre.categorie === 'AUTRE'
+      ? this.nouvelleCategorie
+      : this.nouveauLivre.categorie;
 
     const livreAEnvoyer = {
       ...this.nouveauLivre,
-      // Initialiser les exemplaires disponibles au même niveau que le total
-      exemplaireDisponible: this.nouveauLivre.exemplaireTotal,
-      // Convertir les types si nécessaire (ex: s'assurer que page est un nombre)
-      page: Number(this.nouveauLivre.page) || 0,
-      exemplaireTotal: Number(this.nouveauLivre.exemplaireTotal) || 1
+      categorie: categorieFinale,
+      exemplaireDisponible: Number(this.nouveauLivre.exemplaireTotal),
+      page: Number(this.nouveauLivre.page),
+      exemplaireTotal: Number(this.nouveauLivre.exemplaireTotal)
     };
-
-    console.log("Données envoyées au backend :", livreAEnvoyer);
 
     this.livreService.addLivre(livreAEnvoyer).subscribe({
       next: () => {
@@ -103,17 +102,17 @@ export class CatalogueComponent implements OnInit {
         this.resetForm();
       },
       error: (err) => {
-        console.error("Erreur serveur détaillée :", err);
-        alert("Erreur lors de l'ajout du livre. Vérifiez la console pour plus de détails.");
+        console.error("Erreur serveur :", err);
+        alert("Impossible d'ajouter le livre. Vérifiez les champs.");
       }
     });
   }
-  // Mettre le formulaire de création de livre en vierge
+
   private resetForm() {
     this.nouveauLivre = {
       titre: '', auteur: '', isbn: '', categorie: '',
       description: '', couverture: '', datePublication: '',
-      exemplaireTotal: 1, exemplaireDisponibleOptionnel: null, page: 0
+      editeur: '', exemplaireTotal: 1, page: 0
     };
     this.nouvelleCategorie = '';
   }

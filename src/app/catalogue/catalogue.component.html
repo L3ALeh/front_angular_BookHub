@@ -31,9 +31,9 @@
           <i class="bi bi-filter"></i> {{ selectedCategorie }}
         </button>
         <ul class="dropdown-menu shadow">
-          <li><a (click)="selectedCategorie = 'Toutes catégories'; applyFilters()" class="dropdown-item">Toutes catégories</a></li>
+          <li><a (click)="selectedCategorie = 'Toutes catégories'; applyFilters()" class="dropdown-item" style="cursor: pointer;">Toutes catégories</a></li>
           <li *ngFor="let cat of categories">
-            <a (click)="selectedCategorie = cat; applyFilters()" class="dropdown-item">{{ cat }}</a>
+            <a (click)="selectedCategorie = cat; applyFilters()" class="dropdown-item" style="cursor: pointer;">{{ cat }}</a>
           </li>
         </ul>
       </div>
@@ -90,64 +90,37 @@
       <div class="modal-body p-4">
         <form #addForm="ngForm">
           <div class="row g-3">
-
             <div class="col-md-8">
               <label class="form-label small fw-bold">Titre *</label>
               <input [(ngModel)]="nouveauLivre.titre" name="titre" class="form-control rounded-3" required type="text">
             </div>
-
             <div class="col-md-4">
               <label class="form-label small fw-bold">ISBN *</label>
               <input [(ngModel)]="nouveauLivre.isbn" name="isbn" class="form-control rounded-3" required type="text">
             </div>
-
             <div class="col-md-6">
               <label class="form-label small fw-bold">Auteur *</label>
               <input [(ngModel)]="nouveauLivre.auteur" name="auteur" class="form-control rounded-3" required type="text">
             </div>
-
-            <div class="col-md-6">
-              <label class="form-label small fw-bold">Date de parution</label>
-              <input [(ngModel)]="nouveauLivre.datePublication" name="datePublication" class="form-control rounded-3" type="text" placeholder="JJ/MM/AAAA">
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label small fw-bold">Éditeur</label>
-              <input [(ngModel)]="nouveauLivre.editeur" name="editeur" class="form-control rounded-3" type="text">
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label small fw-bold">Nombre de pages</label>
-              <input [(ngModel)]="nouveauLivre.page" name="page" class="form-control rounded-3" type="number">
-            </div>
-
             <div class="col-md-6">
               <label class="form-label small fw-bold">Catégorie *</label>
               <select [(ngModel)]="nouveauLivre.categorie" name="categorie" class="form-select rounded-3" required>
-                <option value="" disabled selected>Sélectionner...</option>
+                <option value="" disabled>Sélectionner...</option>
                 <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
                 <option value="AUTRE" class="text-primary fw-bold">+ Nouveau genre...</option>
               </select>
             </div>
-
             <div class="col-md-6" *ngIf="nouveauLivre.categorie === 'AUTRE'">
-              <label class="form-label small fw-bold text-primary">Nouveau genre</label>
-              <input [(ngModel)]="nouvelleCategorie" name="nouvelleCat" class="form-control border-primary rounded-3" type="text">
+              <label class="form-label small fw-bold text-primary">Nom du nouveau genre</label>
+              <input [(ngModel)]="nouvelleCategorie" name="nouvelleCat" class="form-control border-primary rounded-3" type="text" required>
             </div>
-
             <div class="col-md-4">
               <label class="form-label small fw-bold">Stock Initial *</label>
               <input [(ngModel)]="nouveauLivre.exemplaireTotal" name="exemplaireTotal" class="form-control rounded-3" type="number" min="1" required>
             </div>
-
             <div class="col-md-8">
               <label class="form-label small fw-bold">Lien de la couverture (URL)</label>
               <input [(ngModel)]="nouveauLivre.couverture" name="couverture" class="form-control rounded-3" type="text" placeholder="https://...">
-            </div>
-
-            <div class="col-12">
-              <label class="form-label small fw-bold">Résumé</label>
-              <textarea [(ngModel)]="nouveauLivre.description" name="description" class="form-control rounded-3" rows="3"></textarea>
             </div>
           </div>
         </form>

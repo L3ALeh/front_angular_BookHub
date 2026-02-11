@@ -16,10 +16,13 @@ import { FormsModule } from '@angular/forms';
 export class livreDetailsComponent implements OnInit {
   livre: Livre | null = null;
 
+  // Correction de l'erreur NG9 : On déclare les propriétés nécessaires au HTML
+  categories: string[] = ['Science-Fiction', 'Roman', 'Poésie', 'Jeunesse', 'Histoire', 'Philosophie', 'Fantastique', 'Biographie'];
+  nouvelleCategorieSaisie: string = "";
+
   noteSelectionnee: number = 0;
   noteSurvolee: number = 0;
   nouveauCommentaire: string = "";
-
   estUtilisateur: boolean = false;
   peutCommenter: boolean = false;
 
@@ -32,68 +35,84 @@ export class livreDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     const uuid = this.route.snapshot.paramMap.get('id');
+    this.estUtilisateur = this.authService.isAuthenticated();
+
     if (uuid) {
       this.chargerLivre(uuid);
-      // On vérifie les droits dès l'initialisation si quelqu'un est connecté
-      if (this.authService.isAuthenticated()) {
-        this.verifierDroitD_Avis(uuid);
+      const userId = this.authService.getUserId();
+      if (this.estUtilisateur && userId) {
+        this.verifierDroitD_Avis(uuid, userId);
       }
     }
-    this.estUtilisateur = this.authService.isAuthenticated();
   }
 
   chargerLivre(uuid: string): void {
     this.livreService.getLivreByUuid(uuid).subscribe({
-      next: (data) => {
+      next: (data: Livre) => {
         this.livre = data;
         this.formaterDatesPourAffichage();
       },
-      error: (err) => console.error('Erreur chargement livre', err)
+      error: (err: any) => console.error(err)
     });
   }
 
-  // Vérifie si l'utilisateur  a le droit de commenter
-  verifierDroitD_Avis(uuidLivre: string): void {
-    const userId = this.authService.getUserId();
+  verifierDroitD_Avis(uuidLivre: string, userId: string): void {
     this.livreService.checkIfUserReadBook(uuidLivre, userId).subscribe({
-      next: (resultat) => {
-        this.peutCommenter = (resultat === true);
-        console.log("Droit de commenter mis à jour :", this.peutCommenter);
+      next: (resultat: boolean) => {
+        this.peutCommenter = resultat;
       },
       error: () => this.peutCommenter = false
     });
   }
 
-  //Action d'emprunt pour l'utilisateur
   emprunterLivre(): void {
-    if (this.livre) {
-      console.log("Tentative d'emprunt :", this.livre.titre);
-      alert(`Demande d'emprunt envoyée pour : ${this.livre.titre}`);
+    const userId = this.authService.getUserId();
+    console.log('ID Utilisateur récupéré :', userId); // Diagnostic 1
+
+    if (!userId) {
+      alert("Erreur : Impossible de récupérer votre identifiant. Reconnectez-vous.");
+      return;
     }
+
+    if (!this.livre || !this.livre.uuidLivre) {
+      console.log('Erreur : Données du livre manquantes'); // Diagnostic 2
+      return;
+    }
+
+    this.livreService.emprunterLivre(this.livre.uuidLivre.toString(), userId).subscribe({
+      next: () => {
+        if (this.livre) this.livre.exemplaireDisponible--;
+        alert(`Emprunt réussi !`);
+      },
+      error: (err) => {
+        console.error('Erreur API :', err);
+        alert("Le serveur a refusé l'emprunt.");
+      }
+    });
   }
 
-  // Action de réservation (si stock épuisé)
   reserverLivre(): void {
-    if (this.livre) {
-      console.log("Tentative de réservation :", this.livre.titre);
-      alert(`Ce livre est actuellement indisponible. Vous avez été ajouté à la liste d'attente.`);
-    }
+    if (this.livre) alert(`Ajouté à la liste d'attente.`);
   }
 
-  // Mise à jour du livre
   validerModification(): void {
     if (this.livre && this.livre.uuidLivre) {
-      let dateAEnvoyer = this.livre.datePublication;
 
-      // Si la date est au format FR (JJ/MM/AAAA), on la convertit en ISO pour le backend
+      // Gestion de la nouvelle catégorie saisie par le Librarian
+      if (this.livre.categorie === 'NEW_CAT' && this.nouvelleCategorieSaisie.trim() !== "") {
+        this.livre.categorie = this.nouvelleCategorieSaisie;
+        if (!this.categories.includes(this.nouvelleCategorieSaisie)) {
+          this.categories.push(this.nouvelleCategorieSaisie);
+        }
+      }
+
+      let dateAEnvoyer = this.livre.datePublication;
       if (dateAEnvoyer && dateAEnvoyer.includes('/')) {
         const parts = dateAEnvoyer.split('/');
         if (parts.length === 3) {
-          // Format ISO: YYYY-MM-DD
           dateAEnvoyer = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
         }
       }
-      // Si c'est juste "2014", on le laisse tel quel (le backend l'acceptera en String)
 
       const livreAjour = {
         ...this.livre,
@@ -103,30 +122,26 @@ export class livreDetailsComponent implements OnInit {
         datePublication: dateAEnvoyer
       };
 
-      // On retire dateAjout car elle est updatable=false côté Java et peut causer des erreurs de désérialisation
+      // Supprimer les champs calculés ou inutiles pour le backend
       delete (livreAjour as any).dateAjout;
 
       this.livreService.updateLivre(this.livre.uuidLivre.toString(), livreAjour).subscribe({
-        next: (res) => {
+        next: (res: Livre) => {
           this.livre = res;
+          this.nouvelleCategorieSaisie = ""; // Reset après succès
           this.formaterDatesPourAffichage();
-          alert('Informations mises à jour avec succès !');
+          alert('Mise à jour réussie !');
         },
-        error: (err) => {
-          console.error("Erreur Backend détaillée:", err);
-          alert('Erreur lors de la sauvegarde. Vérifiez le format de la date.');
-        }
+        error: () => alert('Erreur lors de la sauvegarde.')
       });
     }
   }
 
   private formaterDatesPourAffichage(): void {
     if (this.livre) {
-      // Formatage de la date d'ajout (ISO -> FR)
       if (this.livre.dateAjout && this.livre.dateAjout.includes('T')) {
         this.livre.dateAjout = new Date(this.livre.dateAjout).toLocaleDateString('fr-FR');
       }
-
       if (this.livre.datePublication && this.livre.datePublication.includes('-')) {
         const parts = this.livre.datePublication.split('-');
         if (parts.length === 3) {
@@ -145,34 +160,31 @@ export class livreDetailsComponent implements OnInit {
           this.livre!.commentaires.unshift(nouveauCom);
           this.nouveauCommentaire = "";
           this.noteSelectionnee = 0;
-          alert('Merci pour votre avis !');
+          alert('Avis publié !');
         },
-        error: (err) => alert('Erreur lors de la publication')
+        error: () => alert('Erreur lors de la publication')
       });
     }
   }
 
   supprimerCommentaire(id: number): void {
     if(confirm('Supprimer cet avis ?')) {
-      this.livreService.deleteCommentaire(id).subscribe(() => {
-        this.livre!.commentaires = this.livre!.commentaires?.filter(c => c.id !== id);
+      this.livreService.deleteCommentaire(id).subscribe({
+        next: () => {
+          if (this.livre && this.livre.commentaires) {
+            this.livre.commentaires = this.livre.commentaires.filter(c => c.id !== id);
+          }
+        }
       });
     }
   }
 
   supprimerLivre(): void {
     if (this.livre && this.livre.uuidLivre) {
-      if (confirm('Voulez-vous vraiment retirer ce livre du catalogue ?')) {
+      if (confirm('Retirer ce livre du catalogue ?')) {
         this.livreService.deleteLivre(this.livre.uuidLivre.toString()).subscribe({
-          next: () => {
-            console.log('Livre supprimé avec succès');
-            // Utilise le chemin exact de ton catalogue (ex: '/books')
-            this.router.navigate(['/books']);
-          },
-          error: (err) => {
-            console.error('Erreur lors de la suppression', err);
-            alert('Impossible de supprimer ce livre. Il est peut-être lié à des emprunts en cours.');
-          }
+          next: () => this.router.navigate(['/books']),
+          error: () => alert('Erreur lors de la suppression.')
         });
       }
     }
@@ -180,4 +192,5 @@ export class livreDetailsComponent implements OnInit {
 
   setHover(star: number): void { this.noteSurvolee = star; }
   noter(star: number): void { this.noteSelectionnee = star; }
+
 }

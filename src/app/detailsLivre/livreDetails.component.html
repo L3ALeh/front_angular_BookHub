@@ -84,10 +84,6 @@
               <label class="text-muted small d-block mb-1">Date de parution</label>
               <span class="fw-semibold text-dark">{{ livre.datePublication }}</span>
             </div>
-            <div class="col-sm-6 col-md-4">
-              <label class="text-muted small d-block mb-1">Date d'ajout</label>
-              <span class="fw-semibold text-primary">{{ livre.dateAjout }}</span>
-            </div>
           </div>
         </div>
 
@@ -99,7 +95,6 @@
 
   <div class="card border-0 shadow-sm rounded-4 p-4">
     <h5 class="fw-bold mb-4">Avis des lecteurs</h5>
-
     <div *ngIf="peutCommenter" class="bg-light p-4 rounded-4 mb-4">
       <h6 class="fw-bold mb-3">Votre avis</h6>
       <div class="mb-3">
@@ -112,12 +107,6 @@
       <button (click)="publierAvis()" class="btn btn-primary rounded-pill px-5" [disabled]="!nouveauCommentaire || noteSelectionnee === 0">
         Publier l'avis
       </button>
-    </div>
-
-    <div *ngIf="!peutCommenter && !authService.hasRole('LIBRARIAN')" class="alert alert-info border-0 rounded-4 p-3 mb-4 d-flex align-items-center">
-      <div>
-        Vous ne pouvez pas laisser d'avis pour le moment. Vous devez avoir emprunté et rendu ce livre pour partager votre opinion.
-      </div>
     </div>
 
     <div *ngFor="let com of livre.commentaires" class="mb-3 p-3 border-bottom position-relative">
@@ -154,42 +143,51 @@
           </div>
           <div class="col-md-6">
             <label class="small fw-bold mb-1">ISBN</label>
-            <input type="text" class="form-control" [(ngModel)]="livre.isbn" placeholder="Ex: 978...">
+            <input type="text" class="form-control" [(ngModel)]="livre.isbn">
           </div>
+
           <div class="col-md-6">
             <label class="small fw-bold mb-1">Catégorie *</label>
             <select class="form-select" [(ngModel)]="livre.categorie">
-              <option value="Science-Fiction">Science-Fiction</option>
-              <option value="Roman">Roman</option>
-              <option value="Poésie">Poésie</option>
-              <option value="Jeunesse">Jeunesse</option>
-              <option value="Histoire">Histoire</option>
-              <option value="Philosophie">Philosophie</option>
+              <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+              <option value="NEW_CAT" class="text-primary fw-bold">+ Ajouter une nouvelle catégorie...</option>
             </select>
           </div>
+
+          <div class="col-12" *ngIf="livre.categorie === 'NEW_CAT'">
+            <div class="alert alert-info py-2 px-3 mb-0">
+              <label class="small fw-bold mb-1">Nom de la nouvelle catégorie</label>
+              <input type="text" class="form-control border-primary" [(ngModel)]="nouvelleCategorieSaisie" placeholder="Ex: Manga, Cuisine...">
+            </div>
+          </div>
+
           <div class="col-md-6">
             <label class="small fw-bold mb-1">Éditeur *</label>
             <input type="text" class="form-control" [(ngModel)]="livre.editeur">
           </div>
           <div class="col-md-6">
             <label class="small fw-bold mb-1">Date de parution</label>
-            <input type="text" class="form-control" [(ngModel)]="livre.datePublication" placeholder="JJ/MM/AAAA ou Année">
+            <input type="text" class="form-control" [(ngModel)]="livre.datePublication">
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label class="small fw-bold mb-1">Nb Pages</label>
             <input type="number" class="form-control" [(ngModel)]="livre.page">
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label class="small fw-bold mb-1">Stock Total *</label>
             <input type="number" class="form-control" [(ngModel)]="livre.exemplaireTotal">
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label class="small fw-bold mb-1">Disponibles</label>
             <input type="number" class="form-control" [(ngModel)]="livre.exemplaireDisponible">
           </div>
+          <div class="col-md-3">
+            <label class="small fw-bold mb-1">Date d'ajout</label>
+            <input type="text" class="form-control" [(ngModel)]="livre.dateAjout" readonly disabled>
+          </div>
           <div class="col-12">
             <label class="small fw-bold mb-1">Lien Couverture (URL)</label>
-            <input type="text" class="form-control" [(ngModel)]="livre.couverture" placeholder="https://...">
+            <input type="text" class="form-control" [(ngModel)]="livre.couverture">
           </div>
           <div class="col-12">
             <label class="small fw-bold mb-1">Description</label>

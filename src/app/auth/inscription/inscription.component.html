@@ -1,0 +1,50 @@
+<div class="inscription-container">
+  <div class="inscription-card">
+
+    <!-- Logo -->
+    <div class="logo-container">
+      <div class="logo">
+        <img src="/logo-bookhub.png" alt="Logo Bibliothèque" class="logo-icon">
+      </div>
+    </div>
+
+    <h1 class="title">Bibliothèque Associative</h1>
+    <p class="subtitle">Créez votre compte</p>
+
+    <!-- Formulaire -->
+    <form [formGroup]="inscriptionForm" (ngSubmit)="onSubmit()">
+
+      <div class="form-group">
+        <label for="prenom">Prénom</label>
+        <input id="prenom" formControlName="prenom" type="text" placeholder="Jean" required>
+      </div>
+
+      <div class="form-group">
+        <label for="nom">Nom</label>
+        <input id="nom" formControlName="nom" type="text" placeholder="Dupont" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" formControlName="email" type="email" placeholder="exemple@email.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input id="password" formControlName="password" type="password" placeholder="••••••••" required>
+      </div>
+
+      <button type="submit" [disabled]="inscriptionForm.invalid" class="btn btn-primary">S'inscrire</button>
+    </form>
+
+    <div *ngIf="message" class="message alert alert-info mt-2">
+      {{ message }}
+    </div>
+
+    <!-- Lien Connexion -->
+    <div class="text-center">
+      <a routerLink="/connexion">Déjà un compte ? Connectez-vous</a>
+    </div>
+
+  </div>
+</div>
