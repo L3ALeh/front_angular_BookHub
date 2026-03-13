@@ -1,0 +1,151 @@
+.catalogue-container {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.catalogue-header h1 {
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+/* Barre de recherche style Screen */
+.filter-bar {
+  background: white;
+  padding: 1rem;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2rem 0;
+}
+
+.filter-container {
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  position: sticky;
+  top: 80px; /* Ajuste selon la hauteur du header */
+  z-index: 1000;
+}
+
+/* Classe appliquée lors du scroll */
+.filter-hidden {
+  transform: translateY(-150%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.search-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  margin-right: 1rem;
+}
+
+.search-input input {
+  border: none;
+  width: 100%;
+  outline: none;
+  margin-left: 10px;
+}
+
+/* Grille Responsive */
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 25px;
+}
+
+/* Style de la Carte */
+.book-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  border: 1px solid #eee;
+}
+
+.book-card:hover {
+  transform: translateY(-5px);
+}
+
+.image-container {
+  position: relative;
+  height: 200px;
+}
+
+.book-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* déforme pas les images */
+}
+
+/* Empêche les images de s'étirer bizarrement */
+.book-img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+
+/* Ajustement pour les très petits écrans (iPhone SE, etc.) */
+@media (max-width: 576px) {
+  .filter-container {
+    padding: 1rem !important;
+  }
+
+  .card-title {
+    font-size: 0.9rem;
+  }
+}
+
+
+.badge {
+  z-index: 10;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  color: white;
+}
+
+.book-info {
+  padding: 1rem;
+}
+
+.book-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.book-author {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.book-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.stock-status {
+  font-size: 0.8rem;
+  color: #888;
+  border-top: 1px solid #eee;
+  padding-top: 0.5rem;
+}
+
+.bg-success-custom {
+  background-color: #34C759 !important; /* Disponible */
+}
+
+.bg-danger-custom {
+  background-color: #FF383C !important; /* Emprunté */
+}

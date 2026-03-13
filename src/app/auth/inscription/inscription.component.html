@@ -1,0 +1,56 @@
+<div class="inscription-container bg-body">
+  <div class="inscription-card bg-body-tertiary shadow-lg border">
+
+    <div class="logo-container">
+      <div class="logo bg-white shadow-sm">
+        <img src="/logo-bookhub.png" alt="Logo Bibliothèque" class="logo-icon">
+      </div>
+    </div>
+
+    <h1 class="title text-body">Bibliothèque Associative</h1>
+    <p class="subtitle text-muted">Créez votre compte</p>
+
+    <form [formGroup]="inscriptionForm" (ngSubmit)="onSubmit()">
+
+      <div class="form-group">
+        <label for="prenom" class="text-body small fw-bold mb-1">Prénom</label>
+        <input id="prenom" formControlName="prenom" type="text"
+               class="form-control bg-body text-body border" placeholder="Jean" required>
+      </div>
+
+      <div class="form-group mt-3">
+        <label for="nom" class="text-body small fw-bold mb-1">Nom</label>
+        <input id="nom" formControlName="nom" type="text"
+               class="form-control bg-body text-body border" placeholder="Dupont" required>
+      </div>
+
+      <div class="form-group mt-3">
+        <label for="email" class="text-body small fw-bold mb-1">Email</label>
+        <input id="email" formControlName="email" type="email"
+               class="form-control bg-body text-body border" placeholder="exemple@email.com" required>
+      </div>
+
+      <div class="form-group mt-3">
+        <label for="password" class="text-body small fw-bold mb-1">Mot de passe</label>
+        <input id="password" formControlName="password" type="password"
+               class="form-control bg-body text-body border" placeholder="••••••••" required>
+      </div>
+
+      <button type="submit" [disabled]="inscriptionForm.invalid"
+              class="btn btn-primary w-100 mt-4 rounded-pill py-2 fw-bold">
+        S'inscrire
+      </button>
+    </form>
+
+    <div *ngIf="message" class="message alert alert-info mt-3 rounded-3 small">
+      {{ message }}
+    </div>
+
+    <div class="text-center mt-4">
+      <a routerLink="/connexion" class="text-primary text-decoration-none small">
+        Déjà un compte ? Connectez-vous
+      </a>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,110 @@
+/* --- Mise en page globale --- */
+.container {
+  transition: color 0.3s ease;
+}
+
+/* --- Boutons de retour et actions --- */
+.btn-link.text-body:hover {
+  opacity: 0.7;
+  text-decoration: underline !important;
+}
+
+/* --- Cartes principales (Détails et Avis) --- */
+.card {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  border: 1px solid var(--bs-border-color) !important;
+}
+
+[data-bs-theme="dark"] .card {
+  background-color: var(--bs-body-tertiary-bg) !important;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5) !important;
+}
+
+/* --- Image de couverture --- */
+.img-fluid {
+  transition: filter 0.3s ease;
+}
+
+[data-bs-theme="dark"] .img-fluid {
+  filter: brightness(0.85) contrast(1.1); /* Évite l'éblouissement en mode sombre */
+}
+
+/* --- Badges de disponibilité --- */
+.badge {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* --- Zone d'informations techniques (Grille) --- */
+.bg-body.border {
+  background-color: var(--bs-body-bg) !important;
+  border-color: var(--bs-border-color) !important;
+}
+
+.bg-body label {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+/* --- Système de Notation (Étoiles) --- */
+.text-warning {
+  color: #ffc107 !important; /* Jaune vif pour les étoiles */
+}
+
+.bi-star, .bi-star-fill, .bi-star-half {
+  transition: transform 0.2s ease;
+}
+
+.bi-star:hover {
+  transform: scale(1.2);
+}
+
+/* --- Section Avis et Commentaires --- */
+.border-bottom {
+  border-color: var(--bs-border-color) !important;
+}
+
+textarea.form-control {
+  resize: none;
+  border: 1px solid var(--bs-border-color);
+}
+
+textarea.form-control:focus {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  border-color: #0088FF;
+  box-shadow: 0 0 0 0.25rem rgba(0, 136, 255, 0.25);
+}
+
+/* --- Alertes personnalisées --- */
+.alert-info {
+  background-color: var(--bs-info-bg-subtle);
+  color: var(--bs-info-text-emphasis);
+  border: 1px solid var(--bs-info-border-subtle);
+}
+
+.alert-light.text-dark {
+  /* Correction pour le mode sombre */
+  background-color: var(--bs-tertiary-bg);
+  color: var(--bs-body-color) !important;
+  border-color: var(--bs-border-color);
+}
+
+/* --- Modals --- */
+.modal-content {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+}
+
+.modal-header, .modal-footer {
+  border: none;
+}
+
+/* Style spécifique pour les inputs désactivés dans le modal */
+input:disabled {
+  background-color: var(--bs-secondary-bg) !important;
+  opacity: 0.6;
+}

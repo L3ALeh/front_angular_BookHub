@@ -1,0 +1,168 @@
+<div class="container py-4">
+  <div *ngIf="empruntsEnCours.length > 0" style="display:none">{{ empruntsEnCours | json }}</div>
+
+  <div class="mb-4">
+    <h1 class="h2 fw-bold mb-1">
+      {{ authService.hasRole('LIBRARIAN') ? 'Gestion globale des emprunts' : 'Mes emprunts et réservations' }}
+    </h1>
+    <p class="text-muted mb-2 fs-5">
+      {{ authService.hasRole('LIBRARIAN') ? 'Suivi des flux et des retards lecteurs' : 'Gérez vos livres empruntés et réservés' }}
+    </p>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+    <div class="d-flex justify-content-around align-items-center">
+      <button class="onglet" [class.actif]="ongletActif === 'emprunt'" (click)="changerOnglet('emprunt')">
+        {{ authService.hasRole('LIBRARIAN') ? 'Tous les emprunts' : 'Mes emprunts' }} ({{ empruntsEnCours.length }})
+      </button>
+      <button class="onglet" [class.actif]="ongletActif === 'reservation'" (click)="changerOnglet('reservation')">
+        {{ authService.hasRole('LIBRARIAN') ? 'Toutes les réservations' : 'Mes réservations' }} ({{ mesReservations.length }})
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="ongletActif === 'emprunt'">
+    <h5 class="fw-bold mb-4">
+      {{ authService.hasRole('LIBRARIAN') ? 'Emprunts en cours dans la bibliothèque' : 'Emprunts en cours' }}
+    </h5>
+
+    <div *ngIf="!empruntsEnCours || empruntsEnCours.length === 0" class="alert alert-light border rounded-4 text-center py-5">
+      <i class="bi bi-book mb-2 fs-1 d-block text-muted"></i>
+      Aucun emprunt en cours.
+    </div>
+
+    <div *ngFor="let emprunt of empruntsEnCours" class="carte-emprunt mb-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4"
+           [class.border-start]="authService.hasRole('LIBRARIAN')"
+           [style.border-left]="authService.hasRole('LIBRARIAN') ? (getRetard(emprunt) < 0 ? '5px solid #dc3545' : '5px solid #0d6efd') : 'none'">
+        <div class="row g-4 align-items-center">
+          <div class="col-md-2">
+            <img [alt]="emprunt.livre?.titre"
+                 [src]="emprunt.livre?.couverture || 'assets/placeholder.png'"
+                 class="img-fluid rounded-3 shadow-sm w-100"
+                 style="object-fit: cover; max-height: 200px;">
+          </div>
+
+          <div class="col-md-7">
+            <div *ngIf="authService.hasRole('LIBRARIAN')" class="mb-2">
+              <span class="badge bg-light text-dark border">
+                <i class="bi bi-person-fill"></i> Lecteur : {{ emprunt.utilisateur?.prenom }} {{ emprunt.utilisateur?.nom }}
+              </span>
+            </div>
+
+            <h6 class="fw-semibold text-dark fs-5 mb-1">{{ emprunt.livre?.titre }}</h6>
+            <p class="text-muted mb-2">{{ emprunt.livre?.auteur }}</p>
+            <p class="small mb-1">Emprunté le : <strong>{{ emprunt.dateDebut | date:'dd MMMM yyyy' }}</strong></p>
+
+            <div *ngIf="getRetard(emprunt) < 0" class="text-danger small fw-bold">
+              <i class="bi bi-exclamation-triangle-fill"></i> En retard de {{ -getRetard(emprunt) }} jours
+            </div>
+            <div *ngIf="getRetard(emprunt) >= 0" class="text-success small fw-bold">
+              <i class="bi bi-calendar-check"></i> {{ getRetard(emprunt) }} jours restants
+            </div>
+          </div>
+
+          <div class="col-md-3 text-md-end">
+            <div class="mb-3">
+              <span class="text-muted small d-block">Retour prévu le :</span>
+              <span [class.text-danger]="getRetard(emprunt) < 0" class="fw-bold">
+                {{ emprunt.dateFinPrevue | date:'dd MMMM yyyy' }}
+              </span>
+            </div>
+            <button *ngIf="authService.hasRole('LIBRARIAN')"
+                    class="btn btn-primary btn-sm rounded-pill w-100 shadow-sm"
+                    (click)="retournerLivre(emprunt.uuidEmprunt)">
+              Valider le retour
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="my-5">
+    <h5 class="fw-bold mb-4">
+      {{ authService.hasRole('LIBRARIAN') ? 'Historique global des retours' : 'Historique de vos lectures' }}
+    </h5>
+
+    <div *ngIf="!historique || historique.length === 0" class="text-muted italic">
+      Aucun emprunt dans l'historique.
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden" *ngIf="historique && historique.length > 0">
+      <table class="table table-hover mb-0">
+        <thead class="bg-light">
+        <tr>
+          <th class="ps-4">LIVRE</th>
+          <th *ngIf="authService.hasRole('LIBRARIAN')">LECTEUR</th>
+          <th>DATE D'EMPRUNT</th>
+          <th>DATE DE RETOUR</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let h of historique">
+          <td class="ps-4">
+            <div class="py-2">
+              <strong class="d-block">{{ h.livre?.titre }}</strong>
+              <span class="text-muted small">{{ h.livre?.auteur }}</span>
+            </div>
+          </td>
+
+          <td *ngIf="authService.hasRole('LIBRARIAN')" class="align-middle small">
+            {{ h.utilisateur?.prenom }} {{ h.utilisateur?.nom }}
+          </td>
+
+          <td class="align-middle">{{ h.dateDebut | date:'dd/MM/yyyy' }}</td>
+          <td class="align-middle">{{ h.dateFin | date:'dd/MM/yyyy' }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="ongletActif === 'reservation'">
+    <h5 class="fw-bold mb-4">
+      {{ authService.hasRole('LIBRARIAN') ? 'Réservations actives dans la bibliothèque' : 'Mes réservations' }}
+    </h5>
+
+    <div *ngIf="!mesReservations || mesReservations.length === 0" class="alert alert-light border rounded-4 text-center py-5">
+      <i class="bi bi-calendar-x mb-2 fs-1 d-block text-muted"></i>
+      Aucune réservation en attente.
+    </div>
+
+    <div *ngFor="let res of mesReservations" class="mb-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <div class="row g-4 align-items-center">
+          <div class="col-md-2">
+            <img [alt]="res.livre?.titre"
+                 [src]="res.livre?.couverture || 'assets/placeholder.png'"
+                 class="img-fluid rounded-3 shadow-sm w-100"
+                 style="object-fit: cover; max-height: 200px;">
+          </div>
+          <div class="col-md-7">
+            <div *ngIf="authService.hasRole('LIBRARIAN')" class="mb-2">
+              <span class="badge bg-light text-dark border">
+                <i class="bi bi-person-fill"></i> Lecteur : {{ res.utilisateur?.prenom }} {{ res.utilisateur?.nom }}
+              </span>
+            </div>
+            <h6 class="fw-semibold text-dark fs-5 mb-1">{{ res.livre?.titre }}</h6>
+            <p class="text-muted mb-2">{{ res.livre?.auteur }}</p>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-warning text-dark px-3 rounded-pill">
+                Rang d'attente : {{ res.rang }}
+              </span>
+              <span class="text-muted small">Demandé le {{ res.dateReservation | date:'dd/MM/yyyy' }}</span>
+            </div>
+          </div>
+          <div class="col-md-3 text-md-end">
+            <button *ngIf="!authService.hasRole('LIBRARIAN')"
+                    (click)="annulerReservation(res.idReservation)"
+                    class="btn btn-outline-danger btn-sm rounded-pill px-4">
+              Annuler la réservation
+            </button>
+            <span *ngIf="authService.hasRole('LIBRARIAN')" class="badge bg-info text-dark">Priorité {{ res.rang }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

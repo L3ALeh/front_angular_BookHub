@@ -1,6 +1,24 @@
 footer {
-  background: #FFFFFF;
+  /* Utilise le fond tertiaire pour se détacher légèrement du body */
+  background-color: var(--bs-body-tertiary-bg);
   padding: 1.5rem;
   text-align: center;
   margin-top: auto;
+  /* Ajout d'une bordure supérieure subtile */
+  border-top: 1px solid var(--bs-border-color);
+  /* Transition pour le changement de mode */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+footer p, footer span {
+  /* Couleur de texte secondaire pour ne pas être trop agressif */
+  color: var(--bs-secondary-color);
+  font-size: 0.85rem;
+  margin-bottom: 0;
+}
+
+/* Style optionnel pour mettre en avant le nom du projet */
+footer strong, footer .project-name {
+  color: var(--bs-primary);
+  font-weight: 600;
 }
